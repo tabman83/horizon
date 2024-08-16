@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Horizon.Application;
+using Horizon.Application.UseCases;
 using Horizon.Models;
 using k8s;
 using k8s.Autorest;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,7 +15,8 @@ namespace Horizon;
 
 public sealed class HostedService(
     ILogger<HostedService> logger,
-    IKubernetes client) : BackgroundService
+    IKubernetes client,
+    IMediator mediator) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -39,6 +44,9 @@ public sealed class HostedService(
         switch(type)
         {
             case WatchEventType.Added:
+                var mappings = item.Spec.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultUrl, mapping.K8sSecretObjectName));
+                var request = new AzureKeyVaultSubscriptionAddedRequest(mappings);
+                _ = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, AzureKeyVaultSubscriptionAddedResponse>(request);
                 Console.WriteLine("Added");
                 break;
             case WatchEventType.Deleted:
