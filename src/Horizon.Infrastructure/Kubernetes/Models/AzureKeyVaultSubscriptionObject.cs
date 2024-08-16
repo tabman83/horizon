@@ -3,7 +3,7 @@ using k8s;
 using System.Collections.Generic;
 using Horizon.Application.Kubernetes;
 
-namespace Horizon.Infrastructure.Models;
+namespace Horizon.Infrastructure.Kubernetes.Models;
 
 public sealed class AzureKeyVaultSubscriptionObject : KubernetesObject
 {

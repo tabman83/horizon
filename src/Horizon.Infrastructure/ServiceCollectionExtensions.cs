@@ -1,5 +1,6 @@
 ﻿using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
+using Horizon.Infrastructure.Kubernetes;
 using k8s;
 using Microsoft.Extensions.DependencyInjection;
 
