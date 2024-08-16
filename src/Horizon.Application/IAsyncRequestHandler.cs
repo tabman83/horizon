@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Horizon.Application;
 
 public interface IAsyncRequestHandler<TRequest, TResponse>
 {
-    Task<TResponse> HandleAsync(TRequest request);
+    Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken = default);
 }

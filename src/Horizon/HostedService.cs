@@ -19,7 +19,7 @@ public sealed class HostedService(
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
         watcher.RunWatcherAsync(Reconcile, stoppingToken);
 
-    private void Reconcile(WatchEventType type, IEnumerable<AzureKeyVaultSubscriptionSpec> items)
+    private void Reconcile(WatchEventType type, string? name, string? @namespace, IEnumerable<AzureKeyVaultSubscriptionSpec> items)
     {
         switch(type)
         {

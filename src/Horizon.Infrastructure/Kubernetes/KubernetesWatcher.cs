@@ -4,7 +4,6 @@ using k8s;
 using Horizon.Application.Kubernetes;
 using System;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using Horizon.Infrastructure.Kubernetes.Models;
 
 namespace Horizon.Infrastructure.Kubernetes;
@@ -13,7 +12,7 @@ public class KubernetesWatcher(
     IKubernetes Client,
     ILogger<KubernetesWatcher> Logger) : IKubernetesWatcher
 {
-    public async Task RunWatcherAsync(Action<Application.Kubernetes.WatchEventType, IEnumerable<AzureKeyVaultSubscriptionSpec>> watchAction, CancellationToken cancellationToken = default)
+    public async Task RunWatcherAsync(ReconcileDelegate reconcileDelegate, CancellationToken cancellationToken = default)
     {
         var watch = Client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync<AzureKeyVaultSubscriptionObject>(
             group: AzureKeyVaultSubscriptionObject.Group,
@@ -22,16 +21,15 @@ public class KubernetesWatcher(
             watch: true,
             cancellationToken: cancellationToken);
 
-        using (watch.Watch(Reconcile(watchAction)))
+        using (watch.Watch(Reconcile(reconcileDelegate)))
         {
             Logger.LogInformation("WatchingCustomObject");
             await Task.Delay(Timeout.Infinite, cancellationToken);
         }
     }
 
-    private static Action<k8s.WatchEventType, AzureKeyVaultSubscriptionObject> Reconcile(Action<Application.Kubernetes.WatchEventType, IEnumerable<AzureKeyVaultSubscriptionSpec>> watchAction)
+    private static Action<k8s.WatchEventType, AzureKeyVaultSubscriptionObject> Reconcile(ReconcileDelegate reconcileDelegate)
     {
-        return (type, @object) => watchAction((Application.Kubernetes.WatchEventType)type, @object.Spec);
-
+        return (type, @object) => reconcileDelegate((Application.Kubernetes.WatchEventType)type, @object.Metadata?.Name, @object.Metadata?.NamespaceProperty, @object.Spec);
     }
 }

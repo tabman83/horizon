@@ -7,6 +7,6 @@ namespace Horizon.Application.Kubernetes
 {
     public interface IKubernetesWatcher
     {
-        Task RunWatcherAsync(Action<WatchEventType, IEnumerable<AzureKeyVaultSubscriptionSpec>> watchAction, CancellationToken cancellationToken = default);
+        Task RunWatcherAsync(ReconcileDelegate reconcileDelegate, CancellationToken cancellationToken = default);
     }
 }
