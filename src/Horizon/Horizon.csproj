@@ -7,7 +7,6 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="KubernetesClient" Version="14.0.9" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 		<PackageReference Include="Azure.Messaging.EventGrid" Version="4.24.1" />
 		<PackageReference Include="NSwag.AspNetCore" Version="14.1.0" />
@@ -16,5 +15,6 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\Horizon.Application\Horizon.Application.csproj" />
+	  <ProjectReference Include="..\Horizon.Infrastructure\Horizon.Infrastructure.csproj" />
 	</ItemGroup>
 </Project>

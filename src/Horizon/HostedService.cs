@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Horizon.Application;
+using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
-using Horizon.Models;
-using k8s;
-using k8s.Autorest;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,36 +13,18 @@ namespace Horizon;
 
 public sealed class HostedService(
     ILogger<HostedService> logger,
-    IKubernetes client,
+    IKubernetesWatcher watcher,
     IMediator mediator) : BackgroundService
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        var watch = await GetAzureKeyVaultSubscriptionWatcherAsync(stoppingToken);
+    protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
+        watcher.RunWatcherAsync(Reconcile, stoppingToken);
 
-        using (watch.Watch<AzureKeyVaultSubscriptionObject, AzureKeyVaultSubscriptionObject>(Reconcile))
-        {
-            logger.LogInformation("WatchingCustomObject");
-            await Task.Delay(Timeout.Infinite, stoppingToken);
-        }
-    }
-
-    private Task<HttpOperationResponse<AzureKeyVaultSubscriptionObject>> GetAzureKeyVaultSubscriptionWatcherAsync(CancellationToken cancellationToken = default)
-    {
-        return client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync<AzureKeyVaultSubscriptionObject>(
-            group: AzureKeyVaultSubscriptionObject.Group,
-            version: AzureKeyVaultSubscriptionObject.Version,
-            plural: AzureKeyVaultSubscriptionObject.Plural,
-            watch: true,
-            cancellationToken: cancellationToken);
-    }
-
-    private void Reconcile(WatchEventType type, AzureKeyVaultSubscriptionObject item)
+    private void Reconcile(WatchEventType type, IEnumerable<AzureKeyVaultSubscriptionSpec> items)
     {
         switch(type)
         {
             case WatchEventType.Added:
-                var mappings = item.Spec.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultUrl, mapping.K8sSecretObjectName));
+                var mappings = items.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultUrl, mapping.K8sSecretObjectName));
                 var request = new AzureKeyVaultSubscriptionAddedRequest(mappings);
                 _ = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, AzureKeyVaultSubscriptionAddedResponse>(request);
                 Console.WriteLine("Added");
@@ -58,7 +38,7 @@ public sealed class HostedService(
             case WatchEventType.Error:
             case WatchEventType.Bookmark:
                 logger.LogInformation("WatchEventType {Type}", type);
-                logger.LogInformation("Item {Item}", item);
+                logger.LogInformation("Items {Items}", items);
                 break;
             default:
                 logger.LogInformation("Unknown WatchEventType {Type}", type);

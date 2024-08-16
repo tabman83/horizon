@@ -1,5 +1,6 @@
 ﻿using Horizon;
 using Horizon.Application;
+using Horizon.Infrastructure;
 using Horizon.UseCases;
 using k8s;
 using Microsoft.AspNetCore.Builder;
@@ -11,13 +12,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.SetMinimumLevel(LogLevel.Information);
 
-builder.Services.AddSingleton<IKubernetes>(new Kubernetes(KubernetesClientConfiguration.BuildConfigFromConfigFile("C:\\Users\\aparisi\\.kube\\config", "lz-nonprod-we-aks")));
 builder.Services.AddHostedService<HostedService>();
 builder.Services.AddScoped<WebhookDeliveryHandler>();
 builder.Services.AddScoped<WebhookValidationHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument();
-builder.Services.AddMediator();
+builder.Services.AddApplicationLayer();
+builder.Services.AddInfrastructureLayer();
 
 using var app = builder.Build();
 app.UseOpenApi();

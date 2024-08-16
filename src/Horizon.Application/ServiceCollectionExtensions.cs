@@ -5,7 +5,7 @@ namespace Horizon.Application;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMediator(this IServiceCollection services)
+    public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
     {
         services.AddTransient<IMediator, Mediator>();
         services.AddTransient<IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, AzureKeyVaultSubscriptionAddedResponse>, AzureKeyVaultSubscriptionAddedHandler>();

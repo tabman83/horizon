@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="KubernetesClient" Version="14.0.9" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\Horizon.Application\Horizon.Application.csproj" />
+	</ItemGroup>
+
+</Project>
