@@ -1,0 +1,9 @@
+﻿apiVersion: horizon.sh/v1
+kind: AzureKeyVaultSubscription
+metadata:
+  name: ci-tooling
+  namespace: ci-tooling
+spec:
+- azureKeyVaultUrl: https://tooling-ci-we.vault.azure.net/
+  k8sSecretObjectName: ci-tooling
+
