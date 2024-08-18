@@ -9,12 +9,12 @@ using Horizon.Infrastructure.Kubernetes.Models;
 namespace Horizon.Infrastructure.Kubernetes;
 
 public class KubernetesWatcher(
-    IKubernetes Client,
-    ILogger<KubernetesWatcher> Logger) : IKubernetesWatcher
+    IKubernetes client,
+    ILogger<KubernetesWatcher> logger) : IKubernetesWatcher
 {
     public async Task RunWatcherAsync(ReconcileDelegate reconcileDelegate, CancellationToken cancellationToken = default)
     {
-        var watch = Client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync<AzureKeyVaultSubscriptionObject>(
+        var watch = client.CustomObjects.ListClusterCustomObjectWithHttpMessagesAsync<AzureKeyVaultSubscriptionObject>(
             group: AzureKeyVaultSubscriptionObject.Group,
             version: AzureKeyVaultSubscriptionObject.Version,
             plural: AzureKeyVaultSubscriptionObject.Plural,
@@ -23,7 +23,7 @@ public class KubernetesWatcher(
 
         using (watch.Watch(Reconcile(reconcileDelegate)))
         {
-            Logger.LogInformation("WatchingCustomObject");
+            logger.LogInformation("WatchingCustomObject");
             await Task.Delay(Timeout.Infinite, cancellationToken);
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ErrorOr;
 using Horizon.Application;
 using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
@@ -21,13 +22,20 @@ public sealed class HostedService(
 
     private void Reconcile(WatchEventType type, string? name, string? @namespace, IEnumerable<AzureKeyVaultSubscriptionSpec> items)
     {
+        if(name is null || @namespace is null)
+        {
+            logger.LogError("Name or Namespace is null");
+            return;
+        }
         switch(type)
         {
             case WatchEventType.Added:
                 var mappings = items.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultUrl, mapping.K8sSecretObjectName));
-                var request = new AzureKeyVaultSubscriptionAddedRequest(mappings);
-                _ = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, AzureKeyVaultSubscriptionAddedResponse>(request);
-                Console.WriteLine("Added");
+                var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, @namespace);
+                var response = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<AzureKeyVaultSubscriptionAddedResponse>>(request);
+                response.Switch(
+                    _ => logger.LogInformation("AzureKeyVaultSubscriptionAdded"),
+                    errors => logger.LogError("AzureKeyVaultSubscriptionAddedErrors {Errors}", errors));
                 break;
             case WatchEventType.Deleted:
                 Console.WriteLine("Deleted");

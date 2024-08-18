@@ -1,4 +1,5 @@
 ﻿using System;
+using ErrorOr;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Horizon.Application.UseCases;
 
-public sealed record AzureKeyVaultSubscriptionAddedRequest(IEnumerable<AzureKeyVaultMappingRequest> Mappings) : IRequest<AzureKeyVaultSubscriptionAddedResponse>;
+public sealed record AzureKeyVaultSubscriptionAddedRequest(IEnumerable<AzureKeyVaultMappingRequest> Mappings, string Namespace) : IRequest<ErrorOr<AzureKeyVaultSubscriptionAddedResponse>>;
 
 public sealed record AzureKeyVaultMappingRequest(string AzureKeyVaultUrl, string K8sSecretObjectName);
 
@@ -15,17 +16,23 @@ public sealed record AzureKeyVaultSubscriptionAddedResponse();
 
 public class AzureKeyVaultSubscriptionAddedHandler(
     ILogger<AzureKeyVaultSubscriptionAddedHandler> logger,
-    ISecretStore secretStore) : IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, AzureKeyVaultSubscriptionAddedResponse>
+    ISecretStore secretStore) : IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<AzureKeyVaultSubscriptionAddedResponse>>
 {
-    public async Task<AzureKeyVaultSubscriptionAddedResponse> HandleAsync(AzureKeyVaultSubscriptionAddedRequest request, CancellationToken cancellationToken = default)
+    internal static readonly Action<Success> EmptyAction = _ => { };
+
+    public async Task<ErrorOr<AzureKeyVaultSubscriptionAddedResponse>> HandleAsync(AzureKeyVaultSubscriptionAddedRequest request, CancellationToken cancellationToken = default)
     {
         logger.LogInformation("HandlingAzureKeyVaultSubscriptionAdded");
-        foreach(var mapping in request.Mappings)
+        var errorList = new List<Error>();
+        foreach (var mapping in request.Mappings)
         {
-            await secretStore.LoadAzureKeyVaultAsync(new Uri(mapping.AzureKeyVaultUrl), cancellationToken);
+            var result = await secretStore.MapAzureKeyVaultAsync(new Uri(mapping.AzureKeyVaultUrl), request.Namespace, mapping.K8sSecretObjectName, cancellationToken);
+            result.Switch(EmptyAction, errorList.AddRange);
         }
-        // Simulate async work
-        await Task.Delay(100);
+        if (errorList.Count > 0)
+        {
+            return errorList;
+        }
         return new AzureKeyVaultSubscriptionAddedResponse();
     }
 }

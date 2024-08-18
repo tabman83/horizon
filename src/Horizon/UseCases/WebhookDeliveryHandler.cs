@@ -1,22 +1,27 @@
 ﻿using System;
+using ErrorOr;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging;
 using Azure.Messaging.EventGrid;
 using Azure.Messaging.EventGrid.SystemEvents;
+using Horizon.Application;
+using Horizon.Application.UseCases;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Azure;
 
 namespace Horizon.UseCases;
 
 public class WebhookDeliveryHandler(
-    ILogger<WebhookDeliveryHandler> logger) : IApiHandler
+    ILogger<WebhookDeliveryHandler> logger,
+    IMediator mediator) : IApiHandler
 {
-    public async Task<IResult> HandleAsync(HttpRequest request, CancellationToken cancellationToken = default)
+    public async Task<IResult> HandleAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
     {
         try
         {
-            var binaryData = await BinaryData.FromStreamAsync(request.Body, cancellationToken);
+            var binaryData = await BinaryData.FromStreamAsync(httpRequest.Body, cancellationToken);
             var @event = CloudEvent.Parse(binaryData);
 
             if(@event is null)
@@ -33,7 +38,11 @@ public class WebhookDeliveryHandler(
             {
                 case KeyVaultSecretNewVersionCreatedEventData data:
                     logger.LogInformation("KeyVaultSecretNewVersionCreated {Data}", data);
-                    return Results.Ok();
+                    var request = new AzureKeyVaultSecretNewVersionCreatedRequest();
+                    var response = await mediator.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<AzureKeyVaultSecretNewVersionCreatedResponse>>(request, cancellationToken);
+                    return response.Match(
+                        value => Results.Ok(),
+                        errors => Results.Problem(response.FirstError.Description));
                 default:
                     logger.LogInformation("UnhandledEventType {EventType} {Event}", @event.Type, @event.Data?.ToString());
                     return Results.Ok();
@@ -41,7 +50,7 @@ public class WebhookDeliveryHandler(
         }
         catch (TaskCanceledException)
         {
-            return Results.Text("Request was canceled", statusCode: 499);
+            return Results.Text("RequestWasCanceled", statusCode: 499);
         }
         catch (Exception exception)
         {
