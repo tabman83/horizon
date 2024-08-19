@@ -19,6 +19,7 @@ public sealed record AzureKeyVaultMappingRequest(string AzureKeyVaultName, strin
 public class AzureKeyVaultSubscriptionAddedHandler(
     ILogger<AzureKeyVaultSubscriptionAddedHandler> logger,
     IKeyVaultSecretReader secretReader,
+    ISubscriptionsStore store,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>
 {
     internal static Action<Success> EmptyAction => _ => { };
@@ -29,7 +30,8 @@ public class AzureKeyVaultSubscriptionAddedHandler(
         List<Error> errorList = [];
         foreach (var mapping in request.Mappings)
         {
-            await secretReader.LoadAllSecretsAsync(mapping.AzureKeyVaultName, cancellationToken)
+            await store.AddSubscription(mapping.AzureKeyVaultName, new KubernetesBundle(mapping.K8sSecretObjectName, request.Namespace))
+                .ThenAsync(_ => secretReader.LoadAllSecretsAsync(mapping.AzureKeyVaultName, cancellationToken))
                 .ThenAsync(secrets => secretWriter.ReplaceAsync(mapping.K8sSecretObjectName, request.Namespace, secrets, cancellationToken))
                 .Switch(EmptyAction, errorList.AddRange);
         }
