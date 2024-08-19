@@ -38,11 +38,12 @@ public class WebhookDeliveryHandler(
             {
                 case KeyVaultSecretNewVersionCreatedEventData data:
                     logger.LogInformation("KeyVaultSecretNewVersionCreated {Data}", data);
-                    var request = new AzureKeyVaultSecretNewVersionCreatedRequest();
-                    var response = await mediator.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<AzureKeyVaultSecretNewVersionCreatedResponse>>(request, cancellationToken);
-                    return response.Match(
-                        value => Results.Ok(),
-                        errors => Results.Problem(response.FirstError.Description));
+                    var request = new AzureKeyVaultSecretNewVersionCreatedRequest(data.VaultName, data.ObjectName, data.Version);
+                    var response = await mediator.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>(request, cancellationToken);
+                    response.Switch(
+                        success => logger.LogInformation("KeyVaultSecretNewVersionCreatedSuccess"),
+                        errors => logger.LogError("KeyVaultSecretNewVersionCreatedError {Errors}", errors));
+                    return Results.Ok();
                 default:
                     logger.LogInformation("UnhandledEventType {EventType} {Event}", @event.Type, @event.Data?.ToString());
                     return Results.Ok();

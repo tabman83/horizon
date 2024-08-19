@@ -8,7 +8,7 @@ namespace Horizon.Infrastructure.AzureKeyVault;
 public class SecretClientFactory
 {
     private readonly TokenCredential _credential = null!;
-    private readonly ConcurrentDictionary<Uri, SecretClient> _clientsCache = new();
+    private readonly ConcurrentDictionary<string, SecretClient> _clientsCache = new();
 
     protected SecretClientFactory()
     {
@@ -19,6 +19,6 @@ public class SecretClientFactory
         _credential = credential;
     }
 
-    public virtual SecretClient CreateClient(Uri keyVaultUri) =>
-        _clientsCache.GetOrAdd(keyVaultUri, uri => new SecretClient(uri, _credential));
+    public virtual SecretClient CreateClient(string keyVaultName) =>
+        _clientsCache.GetOrAdd(keyVaultName, keyVaultName => new SecretClient(new Uri($"https://{keyVaultName}.vault.azure.net"), _credential));
 }

@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IKubernetes>(new k8s.Kubernetes(KubernetesClientConfiguration.BuildConfigFromConfigFile("C:\\Users\\aparisi\\.kube\\config", "lz-nonprod-we-aks")));
         services.AddTransient<IKubernetesWatcher, KubernetesWatcher>();
+        services.AddTransient<IKubernetesSecretWriter, KubernetesSecretWriter>();
         services.AddSingleton<ISecretStore, SecretStore>();
         services.AddSingleton<SecretClientFactory>();
         services.AddSingleton<TokenCredential, DefaultAzureCredential>();

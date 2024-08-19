@@ -2,11 +2,12 @@
 using Horizon.Application;
 using Horizon.Infrastructure;
 using Horizon.UseCases;
-using k8s;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+const string webhooksUrl = "/webhooks";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +24,10 @@ builder.Services.AddInfrastructureLayer();
 using var app = builder.Build();
 app.UseOpenApi();
 app.UseSwaggerUi();
-app.MapPost("/webhook", CreateLambdaForHandler<WebhookDeliveryHandler>());
-app.MapMethods("/webhook", ["OPTIONS"], CreateLambdaForHandler<WebhookValidationHandler>());
+app.MapPost(webhooksUrl, CreateLambdaForHandler<WebhookDeliveryHandler>())
+    .WithOpenApi();
+app.MapMethods(webhooksUrl, ["OPTIONS"], CreateLambdaForHandler<WebhookValidationHandler>())
+    .WithOpenApi();
 app.Run();
 
 static RequestDelegate CreateLambdaForHandler<T>() where T : class, IApiHandler =>

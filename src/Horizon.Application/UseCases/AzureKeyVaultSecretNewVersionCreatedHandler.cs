@@ -6,16 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Horizon.Application.UseCases;
 
-public sealed record AzureKeyVaultSecretNewVersionCreatedRequest() : IRequest<ErrorOr<AzureKeyVaultSecretNewVersionCreatedResponse>>;
-
-public sealed record AzureKeyVaultSecretNewVersionCreatedResponse();
+public sealed record AzureKeyVaultSecretNewVersionCreatedRequest(string VaultName, string SecretName, string Version) : IRequest<ErrorOr<Success>>;
 
 public class AzureKeyVaultSecretNewVersionCreatedHandler(
     ILogger<AzureKeyVaultSecretNewVersionCreatedHandler> logger,
-    ISecretStore secretStore) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<AzureKeyVaultSecretNewVersionCreatedResponse>>
+    ISecretStore secretStore) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>
 {
-    public Task<ErrorOr<AzureKeyVaultSecretNewVersionCreatedResponse>> HandleAsync(AzureKeyVaultSecretNewVersionCreatedRequest request, CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSecretNewVersionCreatedRequest request, CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        return await secretStore.UpdateSecretAsync(request.VaultName, request.SecretName, request.Version, cancellationToken);
     }
 }

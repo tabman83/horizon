@@ -30,9 +30,9 @@ public sealed class HostedService(
         switch(type)
         {
             case WatchEventType.Added:
-                var mappings = items.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultUrl, mapping.K8sSecretObjectName));
+                var mappings = items.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultName, mapping.K8sSecretObjectName));
                 var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, @namespace);
-                var response = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<AzureKeyVaultSubscriptionAddedResponse>>(request);
+                var response = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(request);
                 response.Switch(
                     _ => logger.LogInformation("AzureKeyVaultSubscriptionAdded"),
                     errors => logger.LogError("AzureKeyVaultSubscriptionAddedErrors {Errors}", errors));

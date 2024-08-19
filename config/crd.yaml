@@ -26,7 +26,7 @@ spec:
             nullable: false
             items:
               properties:
-                azureKeyVaultUrl:
+                azureKeyVaultName:
                   nullable: false
                   type: string
                 k8sSecretObjectName:
