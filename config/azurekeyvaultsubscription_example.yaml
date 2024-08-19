@@ -6,4 +6,3 @@ metadata:
 spec:
 - azureKeyVaultName: tooling-ci-we
   k8sSecretObjectName: ci-tooling
-

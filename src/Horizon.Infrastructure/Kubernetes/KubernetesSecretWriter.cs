@@ -4,10 +4,13 @@ using System;
 using System.Threading.Tasks;
 using ErrorOr;
 using k8s;
-using k8s.Autorest;
 using k8s.Models;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using Horizon.Application.Kubernetes;
+using Horizon.Application;
+using System.Linq;
+using k8s.Autorest;
 
 namespace Horizon.Infrastructure.Kubernetes;
 
@@ -17,45 +20,42 @@ public class KubernetesSecretWriter(
 {
     internal const string DefaultSecretType = "Opaque";
 
-    public async Task<ErrorOr<Success>> EnsureExistsAsync(string kubernetesSecretName, string @namespace, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> ReplaceAsync(string kubernetesSecretObjectName, string @namespace, IEnumerable<SecretBundle> secrets, CancellationToken cancellationToken = default)
     {
+        var secret = new V1Secret
+        {
+            Metadata = new V1ObjectMeta { Name = kubernetesSecretObjectName, NamespaceProperty = @namespace },
+            Data = secrets.ToDictionary(s => s.Name, s => Encoding.UTF8.GetBytes(s.Value)),
+            Type = DefaultSecretType
+        };
+
         try
         {
-            await client.CoreV1.ReadNamespacedSecretAsync(kubernetesSecretName, @namespace, cancellationToken: cancellationToken);
+            await client.CoreV1.ReplaceNamespacedSecretAsync(secret, kubernetesSecretObjectName, @namespace, cancellationToken: cancellationToken);
             return Result.Success;
         }
-        catch (HttpOperationException e) when (e.Response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (HttpOperationException ex) when (ex.Response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
+            // If the secret does not exist, create it
             try
             {
-                var secret = new V1Secret
-                {
-                    Metadata = new V1ObjectMeta
-                    {
-                        Name = kubernetesSecretName,
-                        NamespaceProperty = @namespace
-                    },
-                    Data = new Dictionary<string, byte[]> { },
-                    Type = DefaultSecretType
-                };
                 await client.CoreV1.CreateNamespacedSecretAsync(secret, @namespace, cancellationToken: cancellationToken);
-                logger.LogInformation("SecretCreated: {Name} {Namespace}", kubernetesSecretName, @namespace);
                 return Result.Success;
             }
-            catch(Exception createException)
+            catch (Exception exception)
             {
-                logger.LogError(createException, "ErrorCreatingSecret");
-                return Error.Unexpected(description: createException.Message);
+                logger.LogError(exception, "ErrorCreatingSecret");
+                return Error.Unexpected(description: exception.Message);
             }
         }
-        catch (Exception readException)
+        catch(Exception exception)
         {
-            logger.LogError(readException, "ErrorReadingSecret");
-            return Error.Unexpected(description: readException.Message);
+            logger.LogError(exception, "ErrorReplacingSecret");
+            return Error.Unexpected(description: exception.Message);
         }
     }
 
-    public async Task<ErrorOr<Success>> PatchAsync(string kubernetesSecretName, string secretName, string @namespace, string secretValue, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> PatchAsync(string kubernetesSecretObjectName, string @namespace, SecretBundle secret, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -64,18 +64,18 @@ public class KubernetesSecretWriter(
             {
                 Metadata = new V1ObjectMeta
                 {
-                    Name = kubernetesSecretName,
+                    Name = kubernetesSecretObjectName,
                     NamespaceProperty = @namespace
                 },
                 Data = new Dictionary<string, byte[]>
                 {
-                    { secretName, Encoding.UTF8.GetBytes(secretValue) }
+                    { secret.Name, Encoding.UTF8.GetBytes(secret.Value) }
                 }
             };
             // Apply the patch
-            var patchedSecret = await client.CoreV1.PatchNamespacedSecretAsync(new V1Patch(patch, V1Patch.PatchType.StrategicMergePatch), name: kubernetesSecretName, namespaceParameter: @namespace, cancellationToken: cancellationToken);
+            var patchedSecret = await client.CoreV1.PatchNamespacedSecretAsync(new V1Patch(patch, V1Patch.PatchType.StrategicMergePatch), name: kubernetesSecretObjectName, namespaceParameter: @namespace, cancellationToken: cancellationToken);
 
-            logger.LogInformation("SecretPatched: {Name} {Namespace} {Secret}", kubernetesSecretName, @namespace, secretName);
+            logger.LogInformation("SecretPatched: {Name} {Namespace} {Secret}", kubernetesSecretObjectName, @namespace, secret.Name);
             return Result.Success;
         }
         catch (Exception exception)

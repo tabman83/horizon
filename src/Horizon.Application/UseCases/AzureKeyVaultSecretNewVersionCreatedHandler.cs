@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Horizon.Application.AzureKeyVault;
 using Microsoft.Extensions.Logging;
+using Horizon.Application.Kubernetes;
 
 namespace Horizon.Application.UseCases;
 
@@ -10,10 +11,12 @@ public sealed record AzureKeyVaultSecretNewVersionCreatedRequest(string VaultNam
 
 public class AzureKeyVaultSecretNewVersionCreatedHandler(
     ILogger<AzureKeyVaultSecretNewVersionCreatedHandler> logger,
-    ISecretStore secretStore) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>
+    IKeyVaultSecretReader secretReader,
+    IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>
 {
     public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSecretNewVersionCreatedRequest request, CancellationToken cancellationToken = default)
     {
-        return await secretStore.UpdateSecretAsync(request.VaultName, request.SecretName, request.Version, cancellationToken);
+        return await secretReader.LoadSingleSecretAsync(request.VaultName, request.SecretName, cancellationToken)
+            .ThenAsync(secret => secretWriter.PatchAsync(request.SecretName, request.Namespace, secret, cancellationToken));
     }
 }

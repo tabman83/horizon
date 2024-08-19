@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Horizon.Application.AzureKeyVault;
 using Microsoft.Extensions.Logging;
+using Horizon.Application.Kubernetes;
 
 namespace Horizon.Application.UseCases;
 
@@ -17,9 +18,10 @@ public sealed record AzureKeyVaultMappingRequest(string AzureKeyVaultName, strin
 
 public class AzureKeyVaultSubscriptionAddedHandler(
     ILogger<AzureKeyVaultSubscriptionAddedHandler> logger,
-    ISecretStore secretStore) : IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>
+    IKeyVaultSecretReader secretReader,
+    IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>
 {
-    internal static readonly Action<Success> EmptyAction = _ => { };
+    internal static Action<Success> EmptyAction => _ => { };
 
     public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSubscriptionAddedRequest request, CancellationToken cancellationToken = default)
     {
@@ -27,8 +29,9 @@ public class AzureKeyVaultSubscriptionAddedHandler(
         List<Error> errorList = [];
         foreach (var mapping in request.Mappings)
         {
-            var result = await secretStore.CopyAzureKeyVaultAsync(mapping.AzureKeyVaultName, request.Namespace, mapping.K8sSecretObjectName, cancellationToken);
-            result.Switch(EmptyAction, errorList.AddRange);
+            await secretReader.LoadAllSecretsAsync(mapping.AzureKeyVaultName, cancellationToken)
+                .ThenAsync(secrets => secretWriter.ReplaceAsync(mapping.K8sSecretObjectName, request.Namespace, secrets, cancellationToken))
+                .Switch(EmptyAction, errorList.AddRange);
         }
         if (errorList.Count > 0)
         {
