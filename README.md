@@ -20,7 +20,7 @@ Before running the operator you need to deploy the CRD to your cluster:
 kubectl apply -f crd.yaml
 ```
 
-This will enable the cluster to accept instances of `AzureKeyVaultSubscription`s. Below is an example:
+This will enable the cluster to accept instances of `AzureKeyVaultSubscription` resources. Below is an example:
 ```yaml
 apiVersion: horizon.ninoparisi.io/v1
 kind: AzureKeyVaultSubscription
@@ -42,7 +42,15 @@ the default is Managed Identity.
 
 ## Architecture
 
-![image](https://www.plantuml.com/plantuml/png/NL71JiCm3BtxAwnmxXtrC0qG0cb8890uSKbNqqNBwifn1kphSRgMJboYFB_t_5wKTL8lcWyHD6WaTA_aOwNXG9Y7rYiviDCtFX7kZ-WJkfjJ5i8D_U2xpr4TRBbNuOXqf5ux2Uqekoy87mmwQFWRtUOwuLtCIKaSNZs5RgUtCTEVdOVHzyWIJjn_zCy3YLUMYmQ9ja8wojx6wn8-y3dsXIsF-jOY0QnnLQqkYjNpYlFZMbYe8kJ155_Kx9ZtOA3CR4UDGhwThINHJ634RFd75ETg7jPJreHX6fl0AY-iUJz31skhRh_n2m00)
+The controller is responsible for reconciling the cluster wether 2 changes happen:
+- an `AzureKeyVaultSubscription` resource is added/modified/removed
+- a webhook notification is received telling a new Key Vault secret version has been added
+
+These flows are detailed below:
+
+![image](https://www.plantuml.com/plantuml/png/VP4nRy8m48Lt_ufJkhG3i5OC5IrB9JfKGkhKnSG7M1XVP9zfuTVt9R6WKgKkYUFttRjtbqLMcxGSWr6lWQbvlfJ4Apv_s19qNJQvJRvJBv6iS-ncHt5-wt5m75ZPDSPPjHkRcGudihaw42ney6ZCHhwfMJrcMeQIbLD3Tsz-jzUNKDWGSKJhCzd3AQF-dmGDu5QY9WaatS2-Il8NYPznETu7JZrrZPIvJQm3kXwElpqwSOFoBfY2eqDEOuB0UYk9Jvp0zeqcawSntPo-hBRxNgPsR-EESuzCfrEyHWGeAkPLfdlhtAnqoCDrOGytKomCP6BhQiuX6KS50ktgzLUK3cAz1p0sgD-zNXKmcF46m67hT_sePe47_leF)
+
+![image](https://www.plantuml.com/plantuml/png/NL4zJyCm4DtlLvpCt1rrg0eL0gaCI4Ymi3Z9DRLYV95z3j1VppcHISLat_kuzsJlazWe-TE3EF64vfsQC_E0WSMTN6l5SJ3GMR6DJOJ3X3QXkRlaI7Ya7topsOk1beD4zaWJ1UcZwsRPGvdmKKS33N-ZETucFFYSXAB1csVNd-NUP_gpypZxdZYw2uUFS5XmJ_6gGw8saip2r_cwne-y1B-m9bBeD1H0EsyskwjgsxeYZxgKEbYf8jGIM_nQtW5qADWmAHR9TjLQ4jK4IbJBFwOuTnNSBbcrF2n74MZbbLNloVMmr-hw9xy0)
 
 ## References
 - [Azure Key Vault to Kubernetes](https://github.com/SparebankenVest/azure-key-vault-to-kubernetes)
