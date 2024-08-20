@@ -1,0 +1,39 @@
+name: .NET Core CI/CD
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore **/*.csproj
+
+    - name: Build the project
+      run: dotnet build **/*.csproj --no-restore --configuration Release
+
+    # Execute all unit tests in the solution
+    - name: Run tests
+      run: dotnet test **/*.Unit.Tests.csproj --no-build --verbosity normal --configuration Release
