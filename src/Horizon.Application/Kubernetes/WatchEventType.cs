@@ -1,11 +1,10 @@
-﻿namespace Horizon.Application.Kubernetes
+﻿namespace Horizon.Application.Kubernetes;
+
+public enum WatchEventType
 {
-    public enum WatchEventType
-    {
-        Added,
-        Modified,
-        Deleted,
-        Error,
-        Bookmark
-    }
+    Added,
+    Modified,
+    Deleted,
+    Error,
+    Bookmark
 }

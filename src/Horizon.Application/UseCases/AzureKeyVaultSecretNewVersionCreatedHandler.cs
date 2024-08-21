@@ -2,10 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Horizon.Application.AzureKeyVault;
-using Microsoft.Extensions.Logging;
 using Horizon.Application.Kubernetes;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Linq;
 
 namespace Horizon.Application.UseCases;
@@ -13,7 +11,6 @@ namespace Horizon.Application.UseCases;
 public sealed record AzureKeyVaultSecretNewVersionCreatedRequest(string VaultName, string SecretName) : IRequest<ErrorOr<Success>>;
 
 public class AzureKeyVaultSecretNewVersionCreatedHandler(
-    ILogger<AzureKeyVaultSecretNewVersionCreatedHandler> logger,
     ISubscriptionsStore store,
     IKeyVaultSecretReader secretReader,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>
@@ -48,5 +45,5 @@ public class AzureKeyVaultSecretNewVersionCreatedHandler(
         return Result.Success;
     }
 
-    record Bundle(SecretBundle SecretBundle, IEnumerable<KubernetesBundle> KubernetesBundles);
+    private record Bundle(SecretBundle SecretBundle, IEnumerable<KubernetesBundle> KubernetesBundles);
 }

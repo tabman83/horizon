@@ -30,6 +30,7 @@ public sealed class HostedService(
         switch(type)
         {
             case WatchEventType.Added:
+            case WatchEventType.Modified:
                 var mappings = items.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultName, mapping.K8sSecretObjectName));
                 var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, @namespace);
                 var response = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(request);
@@ -39,9 +40,6 @@ public sealed class HostedService(
                 break;
             case WatchEventType.Deleted:
                 Console.WriteLine("Deleted");
-                break;
-            case WatchEventType.Modified:
-                Console.WriteLine("Modified");
                 break;
             case WatchEventType.Error:
             case WatchEventType.Bookmark:

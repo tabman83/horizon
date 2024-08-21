@@ -1,4 +1,4 @@
-﻿apiVersion: horizon.sh/v1
+﻿apiVersion: horizon.ninoparisi.io/v1
 kind: AzureKeyVaultSubscription
 metadata:
   name: ci-tooling
