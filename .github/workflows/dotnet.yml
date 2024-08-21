@@ -9,11 +9,6 @@ on:
 jobs:
 
   build:
-
-    strategy:
-      matrix:
-        configuration: [Debug, Release]
-
     runs-on: ubuntu-latest
 
     steps:
@@ -29,11 +24,11 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore dependencies
-      run: dotnet restore **/*.csproj
+      run: dotnet restore src
 
     - name: Build the project
-      run: dotnet build **/*.csproj --no-restore --configuration Release
+      run: dotnet build src --no-restore --configuration Release
 
     # Execute all unit tests in the solution
     - name: Run tests
-      run: dotnet test **/*.Unit.Tests.csproj --no-build --verbosity normal --configuration Release
+      run: dotnet test src/Tests/*.Unit.Tests.csproj --no-build --verbosity normal --configuration Release
