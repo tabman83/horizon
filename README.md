@@ -1,5 +1,6 @@
 # Horizon
 [![Continous Integration](https://github.com/tabman83/horizon/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tabman83/horizon/actions/workflows/dotnet.yml)
+
 A .NET Kubernetes Operator that securely synchronizes secrets from Azure Key Vault to Kubernetes in real-time using Event Grid webhooks
 
 ## Description
