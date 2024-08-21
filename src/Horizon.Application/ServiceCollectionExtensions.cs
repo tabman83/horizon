@@ -1,5 +1,4 @@
 ﻿using ErrorOr;
-using Horizon.Application.AzureKeyVault;
 using Horizon.Application.UseCases;
 using Microsoft.Extensions.DependencyInjection;
 

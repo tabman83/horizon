@@ -7,7 +7,7 @@ namespace Horizon.Infrastructure.Kubernetes.Models;
 
 public sealed class AzureKeyVaultSubscriptionObject : KubernetesObject
 {
-    public const string Group = "horizon.sh";
+    public const string Group = "horizon.ninoparisi.io";
     public const string Version = "v1";
     public const string Plural = "azurekeyvaultsubscriptions";
 

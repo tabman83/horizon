@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Security.KeyVault.Secrets;
 using ErrorOr;
 using Horizon.Application;
 using Horizon.Application.AzureKeyVault;
@@ -35,18 +37,20 @@ public class KeyVaultSecretReader(
         try
         {
             var client = clientFactory.CreateClient(vaultName);
-            var secretProperties = client.GetPropertiesOfSecretsAsync(cancellationToken);
-            List<SecretBundle> secrets = [];
-            await foreach (var secretProperty in secretProperties)
+            var secretPages = client.GetPropertiesOfSecretsAsync(cancellationToken);
+
+            using var secretLoader = new ParallelSecretLoader(client);
+            await foreach (var secret in secretPages)
             {
-                if (secretProperty?.Enabled ?? false)
+                if (secret.Enabled != true)
                 {
-                    var secretResponse = await client.GetSecretAsync(secretProperty.Name, cancellationToken: cancellationToken);
-                    var secret = secretResponse.Value;
-                    secrets.Add(new SecretBundle(secret.Name, secret.Value));
+                    continue;
                 }
+                secretLoader.AddSecretToLoad(secret.Name);
             }
-            return secrets;
+            var loadedSecrets = await secretLoader.WaitForAllAsync();
+            var secretBundles = loadedSecrets.Select(x => new SecretBundle(x.Value.Name, x.Value.Value));
+            return secretBundles.ToErrorOr();
         }
         catch (Exception exception)
         {
