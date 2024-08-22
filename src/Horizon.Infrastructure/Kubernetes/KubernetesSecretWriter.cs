@@ -82,8 +82,8 @@ public class KubernetesSecretWriter(
                     { secret.Name, Encoding.UTF8.GetBytes(secret.Value) }
                 }
             };
-            // Apply the patch
-            var patchedSecret = await client.CoreV1.PatchNamespacedSecretAsync(new V1Patch(patch, V1Patch.PatchType.StrategicMergePatch), name: kubernetesSecretObjectName, namespaceParameter: @namespace, cancellationToken: cancellationToken);
+            
+            await client.CoreV1.PatchNamespacedSecretAsync(new V1Patch(patch, V1Patch.PatchType.StrategicMergePatch), name: kubernetesSecretObjectName, namespaceParameter: @namespace, cancellationToken: cancellationToken);
 
             logger.LogInformation("SecretPatched: {Name} {Namespace} {Secret}", kubernetesSecretObjectName, @namespace, secret.Name);
             return Result.Success;

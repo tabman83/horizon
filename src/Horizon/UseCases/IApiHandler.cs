@@ -6,5 +6,5 @@ namespace Horizon.UseCases;
 
 public interface IApiHandler
 {
-    Task<IResult> HandleAsync(HttpRequest request, CancellationToken cancellationToken = default);
+    Task<IResult> HandleAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default);
 }

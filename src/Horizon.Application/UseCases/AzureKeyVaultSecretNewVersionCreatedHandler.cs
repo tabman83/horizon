@@ -45,5 +45,5 @@ public class AzureKeyVaultSecretNewVersionCreatedHandler(
         return Result.Success;
     }
 
-    private record Bundle(SecretBundle SecretBundle, IEnumerable<KubernetesBundle> KubernetesBundles);
+    private sealed record Bundle(SecretBundle SecretBundle, IEnumerable<KubernetesBundle> KubernetesBundles);
 }

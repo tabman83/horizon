@@ -28,7 +28,7 @@ app.MapPost(webhooksUrl, CreateLambdaForHandler<WebhookDeliveryHandler>())
     .WithOpenApi();
 app.MapMethods(webhooksUrl, ["OPTIONS"], CreateLambdaForHandler<WebhookValidationHandler>())
     .WithOpenApi();
-app.Run();
+await app.RunAsync();
 
 static RequestDelegate CreateLambdaForHandler<T>() where T : class, IApiHandler =>
     async context =>
