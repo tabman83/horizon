@@ -20,16 +20,11 @@ public class KubernetesWatcher(
             plural: AzureKeyVaultSubscriptionObject.Plural,
             watch: true,
             cancellationToken: cancellationToken);
-
-        using (watch.Watch(Reconcile(reconcileDelegate)))
+        
+        await foreach (var (type, item) in watch.WatchAsync<AzureKeyVaultSubscriptionObject, AzureKeyVaultSubscriptionObject>(cancellationToken: cancellationToken))
         {
             logger.LogInformation("WatchingCustomObject");
-            await Task.Delay(Timeout.Infinite, cancellationToken);
+            await reconcileDelegate((Application.Kubernetes.WatchEventType)type, item.Metadata?.Name, item.Metadata?.NamespaceProperty, item.Spec);
         }
-    }
-
-    private static Action<k8s.WatchEventType, AzureKeyVaultSubscriptionObject> Reconcile(ReconcileDelegate reconcileDelegate)
-    {
-        return (type, @object) => reconcileDelegate((Application.Kubernetes.WatchEventType)type, @object.Metadata?.Name, @object.Metadata?.NamespaceProperty, @object.Spec);
     }
 }
