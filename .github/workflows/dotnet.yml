@@ -41,6 +41,10 @@ jobs:
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
+    - name: Install dotnet-coverage
+      run: |
+        dotnet tool install --global dotnet-coverage
+
     - name: Restore dependencies
       run: dotnet restore src
 
