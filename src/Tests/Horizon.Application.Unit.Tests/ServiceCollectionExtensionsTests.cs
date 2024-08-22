@@ -1,6 +1,7 @@
 using ErrorOr;
 using Horizon.Application.UseCases;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Horizon.Application.Tests;
 

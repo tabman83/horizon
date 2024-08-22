@@ -18,12 +18,12 @@ public class WebhookValidationHandler(
     internal const string AllowedMethods = "POST, OPTIONS";
     internal const string WebHookAllowedRate = "*";
 
-    public async Task<IResult> HandleAsync(HttpRequest request, CancellationToken cancellationToken = default)
+    public async Task<IResult> HandleAsync(HttpRequest httpRequest, CancellationToken cancellationToken = default)
     {
         await Task.Yield();
         try
         {
-            var webhookRequestOrigin = request.Headers.TryGetValue(WebhookRequestOriginHeader, out var origin) ? origin.ToString() : "Unknown";
+            var webhookRequestOrigin = httpRequest.Headers.TryGetValue(WebhookRequestOriginHeader, out var origin) ? origin.ToString() : "Unknown";
 
             var headers = new Dictionary<string, string>
             {

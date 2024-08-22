@@ -44,7 +44,7 @@ public class KubernetesSecretWriter(
             await client.CoreV1.ReplaceNamespacedSecretAsync(secret, kubernetesSecretObjectName, @namespace, cancellationToken: cancellationToken);
             return Result.Success;
         }
-        catch (HttpOperationException ex) when (ex.Response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (HttpOperationException exception) when (exception.Response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             // If the secret does not exist, create it
             try
@@ -52,10 +52,10 @@ public class KubernetesSecretWriter(
                 await client.CoreV1.CreateNamespacedSecretAsync(secret, @namespace, cancellationToken: cancellationToken);
                 return Result.Success;
             }
-            catch (Exception exception)
+            catch (Exception nestedException)
             {
-                logger.LogError(exception, "ErrorCreatingSecret");
-                return Error.Unexpected(description: exception.Message);
+                logger.LogError(nestedException, "ErrorCreatingSecret");
+                return Error.Unexpected(description: nestedException.Message);
             }
         }
         catch(Exception exception)
@@ -82,8 +82,8 @@ public class KubernetesSecretWriter(
                     { secret.Name, Encoding.UTF8.GetBytes(secret.Value) }
                 }
             };
-            // Apply the patch
-            var patchedSecret = await client.CoreV1.PatchNamespacedSecretAsync(new V1Patch(patch, V1Patch.PatchType.StrategicMergePatch), name: kubernetesSecretObjectName, namespaceParameter: @namespace, cancellationToken: cancellationToken);
+            
+            await client.CoreV1.PatchNamespacedSecretAsync(new V1Patch(patch, V1Patch.PatchType.StrategicMergePatch), name: kubernetesSecretObjectName, namespaceParameter: @namespace, cancellationToken: cancellationToken);
 
             logger.LogInformation("SecretPatched: {Name} {Namespace} {Secret}", kubernetesSecretObjectName, @namespace, secret.Name);
             return Result.Success;
