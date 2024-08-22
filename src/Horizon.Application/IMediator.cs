@@ -7,5 +7,7 @@ public interface IMediator
 {
     Task<TResponse> SendAsync<TRequest, TResponse>(
         TRequest request,
-        CancellationToken cancellationToken = default) where TRequest : IRequest<TResponse>;
+        CancellationToken cancellationToken = default)
+        where TRequest : IRequest<TResponse>
+        where TResponse : notnull, new();
 }

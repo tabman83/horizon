@@ -9,7 +9,9 @@ public class Mediator(IServiceProvider serviceProvider) : IMediator
 {
     public async Task<TResponse> SendAsync<TRequest, TResponse>(
         TRequest request,
-        CancellationToken cancellationToken = default) where TRequest : IRequest<TResponse>
+        CancellationToken cancellationToken = default)
+        where TRequest : IRequest<TResponse>
+        where TResponse : notnull, new()
     {
         var handler = (IAsyncRequestHandler<TRequest, TResponse>)serviceProvider.GetRequiredService(typeof(IAsyncRequestHandler<TRequest, TResponse>));
         return await handler.HandleAsync(request, cancellationToken);
