@@ -1,5 +1,6 @@
 # Horizon
 [![Continous Integration](https://github.com/tabman83/horizon/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tabman83/horizon/actions/workflows/dotnet.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=tabman83_horizon&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=tabman83_horizon)
 
 A .NET Kubernetes Operator that securely synchronizes secrets from Azure Key Vault to Kubernetes in real-time using Event Grid webhooks
 
