@@ -1,5 +1,8 @@
 name: .NET Core CI/CD
 
+permissions:
+  pull-requests: write
+
 on:
   push:
     branches: [ "master" ]
