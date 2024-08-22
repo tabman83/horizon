@@ -14,7 +14,14 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services)
     {
-        services.AddSingleton<IKubernetes>(new k8s.Kubernetes(KubernetesClientConfiguration.BuildConfigFromConfigFile("C:\\Users\\aparisi\\.kube\\config", "lz-nonprod-we-aks")));
+        if(KubernetesClientConfiguration.IsInCluster())
+        {
+            services.AddSingleton<IKubernetes>(new k8s.Kubernetes(KubernetesClientConfiguration.InClusterConfig()));
+        }
+        else
+        {
+            services.AddSingleton<IKubernetes>(new k8s.Kubernetes(KubernetesClientConfiguration.BuildConfigFromConfigFile()));
+        }
         services.AddTransient<IKubernetesWatcher, KubernetesWatcher>();
         services.AddTransient<IKubernetesSecretWriter, KubernetesSecretWriter>();
         services.AddSingleton<ISubscriptionsStore, SubscriptionsStore>();

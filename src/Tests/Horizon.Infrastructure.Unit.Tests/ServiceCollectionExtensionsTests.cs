@@ -13,7 +13,7 @@ namespace Horizon.Infrastructure.Tests;
 
 public class ServiceCollectionExtensionsTests
 {
-    [Fact(Skip = "Must fix Kubeconfig file loading first")]
+    [Fact(Skip = "Cannot be enabled until K8s config is fixed")]
     public void AddInfrastructureLayer_ShouldRegisterDependencies()
     {
         // Arrange

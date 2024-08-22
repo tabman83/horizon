@@ -1,7 +1,10 @@
 {
   "profiles": {
     "Horizon": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "KUBECONFIG": "C:\\Users\\aparisi\\.kube\\config"
+      }
     }
   }
 }
