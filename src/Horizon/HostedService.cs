@@ -18,9 +18,9 @@ public sealed class HostedService(
     IMediator mediator) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
-        watcher.RunWatcherAsync(Reconcile, stoppingToken);
+        watcher.RunWatcherAsync(ReconcileAsync, stoppingToken);
 
-    private void Reconcile(WatchEventType type, string? name, string? @namespace, IEnumerable<AzureKeyVaultSubscriptionSpec> items)
+    private async Task ReconcileAsync(WatchEventType type, string? name, string? @namespace, IEnumerable<AzureKeyVaultSubscriptionSpec> items)
     {
         if(name is null || @namespace is null)
         {
@@ -33,7 +33,7 @@ public sealed class HostedService(
             case WatchEventType.Modified:
                 var mappings = items.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultName, mapping.K8sSecretObjectName));
                 var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, @namespace);
-                var response = mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(request);
+                var response = await mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(request);
                 response.Switch(
                     _ => logger.LogInformation("AzureKeyVaultSubscriptionAdded"),
                     errors => logger.LogError("AzureKeyVaultSubscriptionAddedErrors {Errors}", errors));
