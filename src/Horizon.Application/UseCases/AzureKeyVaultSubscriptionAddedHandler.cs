@@ -11,10 +11,7 @@ namespace Horizon.Application.UseCases;
 
 public sealed record AzureKeyVaultSubscriptionAddedRequest(IEnumerable<AzureKeyVaultMappingRequest> Mappings, string Namespace) : IRequest<ErrorOr<Success>>;
 
-public sealed record AzureKeyVaultMappingRequest(string AzureKeyVaultName, string K8sSecretObjectName)
-{
-    public string AzureKeyVaultName { get; init; } = AzureKeyVaultName.ToLowerInvariant();
-}
+public sealed record AzureKeyVaultMappingRequest(string AzureKeyVaultName, string K8sSecretObjectName, string? SecretPrefix);
 
 public class AzureKeyVaultSubscriptionAddedHandler(
     ILogger<AzureKeyVaultSubscriptionAddedHandler> logger,
@@ -30,8 +27,8 @@ public class AzureKeyVaultSubscriptionAddedHandler(
         List<Error> errorList = [];
         foreach (var mapping in request.Mappings)
         {
-            await store.AddSubscription(mapping.AzureKeyVaultName, new KubernetesBundle(mapping.K8sSecretObjectName, request.Namespace))
-                .ThenAsync(_ => secretReader.LoadAllSecretsAsync(mapping.AzureKeyVaultName, cancellationToken))
+            await store.AddSubscription(mapping.AzureKeyVaultName, new KubernetesBundle(mapping.K8sSecretObjectName, mapping.SecretPrefix, request.Namespace))
+                .ThenAsync(_ => secretReader.LoadAllSecretsAsync(mapping.AzureKeyVaultName, mapping.SecretPrefix, cancellationToken))
                 .ThenAsync(secrets => secretWriter.ReplaceAsync(mapping.K8sSecretObjectName, request.Namespace, secrets, cancellationToken))
                 .Switch(EmptyAction, errorList.AddRange);
         }

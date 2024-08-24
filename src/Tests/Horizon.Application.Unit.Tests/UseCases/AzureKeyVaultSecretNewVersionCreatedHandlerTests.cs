@@ -5,7 +5,6 @@ using ErrorOr;
 using Horizon.Application.AzureKeyVault;
 using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -32,8 +31,8 @@ public class AzureKeyVaultSecretNewVersionCreatedHandlerTests
         var secretBundle = new SecretBundle("secretName", "secretValue");
         var kubernetesBundles = new List<KubernetesBundle>
         {
-            new("secret1", "namespace1"),
-            new("secret2", "namespace2")
+            new("secret1", null, "namespace1"),
+            new("secret2", null,"namespace2")
         };
 
         _secretReaderMock.Setup(x => x.LoadSingleSecretAsync(request.VaultName, request.SecretName, It.IsAny<CancellationToken>()))

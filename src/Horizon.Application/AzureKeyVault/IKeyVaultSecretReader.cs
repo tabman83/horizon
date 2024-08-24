@@ -7,7 +7,7 @@ namespace Horizon.Application.AzureKeyVault
 {
     public interface IKeyVaultSecretReader
     {
-        Task<ErrorOr<IEnumerable<SecretBundle>>> LoadAllSecretsAsync(string vaultName, CancellationToken cancellationToken = default);
+        Task<ErrorOr<IEnumerable<SecretBundle>>> LoadAllSecretsAsync(string vaultName, string? secretPrefix, CancellationToken cancellationToken = default);
         Task<ErrorOr<SecretBundle>> LoadSingleSecretAsync(string vaultName, string secretName, CancellationToken cancellationToken = default);
     }
 }

@@ -1,0 +1,7 @@
+﻿apiVersion: horizon.ninoparisi.io/v1
+kind: HorizonProviderConfiguration
+metadata:
+  name: horizon-config
+spec:
+  azureKeyVaultAuthenticationType: ManagedIdentity
+  webhookAuthenticationType: MicrosoftIdentity

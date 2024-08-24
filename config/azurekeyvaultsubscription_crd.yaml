@@ -14,27 +14,33 @@ spec:
   - name: v1
     schema:
       openAPIV3Schema:
+        type: object
         properties:
           status:
             nullable: false
+            type: object
             properties:
               status:
                 nullable: false
                 type: string
-            type: object
           spec:
             nullable: false
-            items:
-              properties:
-                azureKeyVaultName:
-                  nullable: false
-                  type: string
-                k8sSecretObjectName:
-                  nullable: false
-                  type: string
-              type: object
-            type: array
-        type: object
+            type: object
+            properties:
+              vaults:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    azureKeyVaultName:
+                      nullable: false
+                      type: string
+                    secretPrefix:
+                      nullable: false
+                      type: string
+                    k8sSecretObjectName:
+                      nullable: false
+                      type: string
     served: true
     storage: true
     subresources:
