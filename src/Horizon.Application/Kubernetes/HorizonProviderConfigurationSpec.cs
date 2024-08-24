@@ -1,0 +1,3 @@
+﻿namespace Horizon.Application.Kubernetes;
+
+public record HorizonProviderConfigurationSpec(string AzureKeyVaultAuthenticationType, string WebhookAuthenticationType);

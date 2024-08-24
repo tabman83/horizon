@@ -4,5 +4,7 @@ metadata:
   name: ci-tooling
   namespace: ci-tooling
 spec:
-- azureKeyVaultName: tooling-ci-we
-  k8sSecretObjectName: ci-tooling
+  vaults:
+  - azureKeyVaultName: esw-tooling-ci-we
+    secretPrefix: cm-
+    k8sSecretObjectName: ci-tooling

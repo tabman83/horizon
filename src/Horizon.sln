@@ -18,7 +18,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{FE0E4BDE-B6CB-428F-8F01-472DC83716AA}"
 	ProjectSection(SolutionItems) = preProject
 		..\config\azurekeyvaultsubscription_example.yaml = ..\config\azurekeyvaultsubscription_example.yaml
-		..\config\crd.yaml = ..\config\crd.yaml
+		..\config\azurekeyvaultsubscription_crd.yaml = ..\config\azurekeyvaultsubscription_crd.yaml
+		..\config\horizonproviderconfiguration_example.yaml = ..\config\horizonproviderconfiguration_example.yaml
+		..\config\horizonproviderconfiguration_crd.yaml = ..\config\horizonproviderconfiguration_crd.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FC2404B0-D775-4E74-AD2A-73BC8E6BF332}"

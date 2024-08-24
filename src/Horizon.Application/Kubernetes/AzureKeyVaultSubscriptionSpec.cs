@@ -1,3 +1,7 @@
-﻿namespace Horizon.Application.Kubernetes;
+﻿using System.Collections.Generic;
 
-public record AzureKeyVaultSubscriptionSpec(string AzureKeyVaultName, string K8sSecretObjectName);
+namespace Horizon.Application.Kubernetes;
+
+public record AzureKeyVaultSubscriptionSpec(IEnumerable<AzureKeyVaultSubscription> Vaults);
+
+public record AzureKeyVaultSubscription(string AzureKeyVaultName, string K8sSecretObjectName, string SecretPrefix);

@@ -32,7 +32,7 @@ public class KeyVaultSecretReader(
         }
     }
 
-    public async Task<ErrorOr<IEnumerable<SecretBundle>>> LoadAllSecretsAsync(string vaultName, CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<IEnumerable<SecretBundle>>> LoadAllSecretsAsync(string vaultName, string? secretPrefix, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -42,7 +42,8 @@ public class KeyVaultSecretReader(
             using var secretLoader = new ParallelSecretLoader(client);
             await foreach (var secret in secretPages)
             {
-                if (secret.Enabled != true)
+                if (secret.Enabled != true || 
+                    (secretPrefix is not null && !secret.Name.StartsWith(secretPrefix, StringComparison.OrdinalIgnoreCase)))
                 {
                     continue;
                 }
