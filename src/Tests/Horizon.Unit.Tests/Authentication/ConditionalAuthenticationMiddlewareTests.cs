@@ -1,9 +1,7 @@
-using k8s.KubeConfigModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -16,11 +14,10 @@ public class ConditionalAuthenticationMiddlewareTests
     {
         // Arrange
         var nextMock = new Mock<RequestDelegate>();
-        var configProviderMock = new Mock<AuthenticationConfigProvider>();
+        var configProvider = new AuthenticationConfigProvider();
+        configProvider.Set(new NoAuthentication());
         var context = new DefaultHttpContext();
-        var middleware = new ConditionalAuthenticationMiddleware(nextMock.Object, configProviderMock.Object);
-
-        configProviderMock.Setup(c => c.Get<AuthenticationBase>()).Returns(new NoAuthentication());
+        var middleware = new ConditionalAuthenticationMiddleware(nextMock.Object, configProvider);
 
         // Act
         await middleware.InvokeAsync(context);
@@ -34,10 +31,10 @@ public class ConditionalAuthenticationMiddlewareTests
     {
         // Arrange
         var nextMock = new Mock<RequestDelegate>();
-        var configProviderMock = new Mock<AuthenticationConfigProvider>();
-        configProviderMock.Setup(x => x.Get<AuthenticationBase>()).Returns(new AzureAdAuthentication("tenantId", "clientId"));
+        var configProvider = new AuthenticationConfigProvider();
+        configProvider.Set(new AzureAdAuthentication("tenantId", "clientId"));
         var context = new DefaultHttpContext();
-        var middleware = new ConditionalAuthenticationMiddleware(nextMock.Object, configProviderMock.Object);
+        var middleware = new ConditionalAuthenticationMiddleware(nextMock.Object, configProvider);
 
         var authServiceMock = new Mock<IAuthenticationService>();
         authServiceMock.Setup(x => x.AuthenticateAsync(context, "AzureAD")).ReturnsAsync(AuthenticateResult.Success(new AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), "AzureAD")));
@@ -58,10 +55,10 @@ public class ConditionalAuthenticationMiddlewareTests
     {
         // Arrange
         var nextMock = new Mock<RequestDelegate>();
-        var configProviderMock = new Mock<AuthenticationConfigProvider>();
-        configProviderMock.Setup(x => x.Get<AuthenticationBase>()).Returns(new BasicAuthentication("username", "password"));
+        var configProvider = new AuthenticationConfigProvider();
+        configProvider.Set(new BasicAuthentication("username", "password"));
         var context = new DefaultHttpContext();
-        var middleware = new ConditionalAuthenticationMiddleware(nextMock.Object, configProviderMock.Object);
+        var middleware = new ConditionalAuthenticationMiddleware(nextMock.Object, configProvider);
 
         var authServiceMock = new Mock<IAuthenticationService>();
         authServiceMock.Setup(x => x.AuthenticateAsync(context, "Basic")).ReturnsAsync(AuthenticateResult.Success(new AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), "Basic")));

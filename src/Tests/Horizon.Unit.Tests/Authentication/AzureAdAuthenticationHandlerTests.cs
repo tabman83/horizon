@@ -16,7 +16,7 @@ public class AzureAdAuthenticationHandlerTests
 {
     private readonly Mock<IOptionsMonitor<OpenIdConnectOptions>> _optionsMock;
     private readonly Mock<ILoggerFactory> _loggerFactoryMock;
-    private readonly Mock<AuthenticationConfigProvider> _configProviderMock;
+    private readonly AuthenticationConfigProvider _configProvider;
     private readonly Mock<UrlEncoder> _encoderMock;
 
     public AzureAdAuthenticationHandlerTests()
@@ -28,7 +28,7 @@ public class AzureAdAuthenticationHandlerTests
         _loggerFactoryMock
             .Setup(x => x.CreateLogger(It.IsAny<string>()))
             .Returns(loggerMock.Object);
-        _configProviderMock = new Mock<AuthenticationConfigProvider>();
+        _configProvider = new AuthenticationConfigProvider();
         _encoderMock = new Mock<UrlEncoder>();
     }
 
@@ -55,7 +55,7 @@ public class AzureAdAuthenticationHandlerTests
         var handler = CreateAzureAdAuthenticationHandler();
         var context = new DefaultHttpContext();
         context.Request.Headers.Append("Authorization", new StringValues("Invalid"));
-        _configProviderMock.Setup(x => x.Get<AzureAdAuthentication>()).Returns(new AzureAdAuthentication("tenantId", "clientId"));
+        _configProvider.Set(new AzureAdAuthentication("tenantId", "clientId"));
 
         // Act
         await handler.InitializeAsync(new AuthenticationScheme("AzureAd", "AzureAd", typeof(AzureAdAuthenticationHandler)), context);
@@ -70,7 +70,7 @@ public class AzureAdAuthenticationHandlerTests
         return new AzureAdAuthenticationHandler(
             _optionsMock.Object,
             _loggerFactoryMock.Object,
-            _configProviderMock.Object,
+            _configProvider,
             _encoderMock.Object);
     }
 }

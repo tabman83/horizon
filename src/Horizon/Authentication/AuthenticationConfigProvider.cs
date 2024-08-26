@@ -14,12 +14,12 @@ public class AuthenticationConfigProvider
 {
     public AuthenticationBase _authentication = new NoAuthentication();
 
-    public virtual void Set(AuthenticationBase authentication)
+    public void Set(AuthenticationBase authentication)
     {
         _authentication = authentication;
     }
 
-    public virtual T Get<T>() where T : AuthenticationBase
+    public T Get<T>() where T : AuthenticationBase
     {
         return _authentication as T ?? throw new InvalidOperationException();
     }

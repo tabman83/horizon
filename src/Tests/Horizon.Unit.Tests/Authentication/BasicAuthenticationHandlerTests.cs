@@ -15,7 +15,7 @@ public class BasicAuthenticationHandlerTests
 {
     private readonly Mock<IOptionsMonitor<AuthenticationSchemeOptions>> _optionsMock;
     private readonly Mock<ILoggerFactory> _loggerFactoryMock;
-    private readonly Mock<AuthenticationConfigProvider> _configProviderMock;
+    private readonly AuthenticationConfigProvider _configProvider;
     private readonly Mock<UrlEncoder> _encoderMock;
 
     public BasicAuthenticationHandlerTests()
@@ -27,7 +27,7 @@ public class BasicAuthenticationHandlerTests
             .Setup(x => x.CreateLogger(It.IsAny<string>()))
             .Returns(loggerMock.Object);
         _optionsMock.Setup(x => x.Get("Basic")).Returns(new AuthenticationSchemeOptions());
-        _configProviderMock = new Mock<AuthenticationConfigProvider>();
+        _configProvider = new AuthenticationConfigProvider();
         _encoderMock = new Mock<UrlEncoder>();
     }
 
@@ -35,13 +35,13 @@ public class BasicAuthenticationHandlerTests
     public async Task HandleAuthenticateAsync_ValidCredentials_ReturnsSuccessResult()
     {
         // Arrange
-        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProviderMock.Object, _encoderMock.Object);
+        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProvider, _encoderMock.Object);
         var context = new DefaultHttpContext();
         context.Request.Headers.Append("Authorization", new StringValues("Basic dXNlcm5hbWU6cGFzc3dvcmQ="));
         var expectedUsername = "username";
         var expectedPassword = "password";
         var expectedAuthentication = new BasicAuthentication(expectedUsername, expectedPassword);
-        _configProviderMock.Setup(x => x.Get<BasicAuthentication>()).Returns(expectedAuthentication);
+        _configProvider.Set(expectedAuthentication);
 
         // Act
         await handler.InitializeAsync(new AuthenticationScheme("Basic", "Basic", typeof(BasicAuthenticationHandler)), context);
@@ -57,13 +57,13 @@ public class BasicAuthenticationHandlerTests
     public async Task HandleAuthenticateAsync_InvalidCredentials_ReturnsFailResult()
     {
         // Arrange
-        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProviderMock.Object, _encoderMock.Object);
+        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProvider, _encoderMock.Object);
         var context = new DefaultHttpContext();
         context.Request.Headers.Append("Authorization", new StringValues("Basic dXNlcm5hbWU6cGFzc3dvcmQ="));
         var expectedUsername = "username";
         var expectedPassword = "wrongpassword";
         var expectedAuthentication = new BasicAuthentication(expectedUsername, expectedPassword);
-        _configProviderMock.Setup(x => x.Get<BasicAuthentication>()).Returns(expectedAuthentication);
+        _configProvider.Set(expectedAuthentication);
 
         // Act
         await handler.InitializeAsync(new AuthenticationScheme("Basic", "Basic", typeof(BasicAuthenticationHandler)), context);
@@ -78,7 +78,7 @@ public class BasicAuthenticationHandlerTests
     public async Task HandleAuthenticateAsync_MissingAuthorizationHeader_ReturnsFailResult()
     {
         // Arrange
-        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProviderMock.Object, _encoderMock.Object);
+        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProvider, _encoderMock.Object);
         var context = new DefaultHttpContext();
 
         // Act
@@ -94,7 +94,7 @@ public class BasicAuthenticationHandlerTests
     public async Task HandleAuthenticateAsync_InvalidAuthorizationHeader_ReturnsFailResult()
     {
         // Arrange
-        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProviderMock.Object, _encoderMock.Object);
+        var handler = new BasicAuthenticationHandler(_optionsMock.Object, _loggerFactoryMock.Object, _configProvider, _encoderMock.Object);
         var context = new DefaultHttpContext();
         context.Request.Headers.Append("Authorization", new StringValues("Invalid"));
 
