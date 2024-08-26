@@ -18,4 +18,11 @@
 		<ProjectReference Include="..\Horizon.Application\Horizon.Application.csproj" />
 		<ProjectReference Include="..\Horizon.Infrastructure\Horizon.Infrastructure.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>$(AssemblyName).Unit.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
 </Project>

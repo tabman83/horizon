@@ -17,17 +17,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Horizon.Infrastructure", "H
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{FE0E4BDE-B6CB-428F-8F01-472DC83716AA}"
 	ProjectSection(SolutionItems) = preProject
-		..\config\azurekeyvaultsubscription_example.yaml = ..\config\azurekeyvaultsubscription_example.yaml
 		..\config\azurekeyvaultsubscription_crd.yaml = ..\config\azurekeyvaultsubscription_crd.yaml
-		..\config\horizonproviderconfiguration_example.yaml = ..\config\horizonproviderconfiguration_example.yaml
+		..\config\azurekeyvaultsubscription_example.yaml = ..\config\azurekeyvaultsubscription_example.yaml
 		..\config\horizonproviderconfiguration_crd.yaml = ..\config\horizonproviderconfiguration_crd.yaml
+		..\config\horizonproviderconfiguration_example.yaml = ..\config\horizonproviderconfiguration_example.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FC2404B0-D775-4E74-AD2A-73BC8E6BF332}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horizon.Application.Unit.Tests", "Tests\Horizon.Application.Unit.Tests\Horizon.Application.Unit.Tests.csproj", "{CB39F5FD-A79C-4970-A4A4-14E81CFC6558}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Horizon.Application.Unit.Tests", "Tests\Horizon.Application.Unit.Tests\Horizon.Application.Unit.Tests.csproj", "{CB39F5FD-A79C-4970-A4A4-14E81CFC6558}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horizon.Infrastructure.Unit.Tests", "Tests\Horizon.Infrastructure.Unit.Tests\Horizon.Infrastructure.Unit.Tests.csproj", "{0AD2641F-5F77-4D34-A43E-2344C65AC555}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Horizon.Infrastructure.Unit.Tests", "Tests\Horizon.Infrastructure.Unit.Tests\Horizon.Infrastructure.Unit.Tests.csproj", "{0AD2641F-5F77-4D34-A43E-2344C65AC555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horizon.Unit.Tests", "Tests\Horizon.Unit.Tests\Horizon.Unit.Tests.csproj", "{6C2F0A2E-6BDB-4328-B0FB-6D4354B88F92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{0AD2641F-5F77-4D34-A43E-2344C65AC555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AD2641F-5F77-4D34-A43E-2344C65AC555}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AD2641F-5F77-4D34-A43E-2344C65AC555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C2F0A2E-6BDB-4328-B0FB-6D4354B88F92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C2F0A2E-6BDB-4328-B0FB-6D4354B88F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C2F0A2E-6BDB-4328-B0FB-6D4354B88F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C2F0A2E-6BDB-4328-B0FB-6D4354B88F92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +69,7 @@ Global
 		{FE0E4BDE-B6CB-428F-8F01-472DC83716AA} = {1E48CCC7-79D4-4074-A227-4019AFAE2769}
 		{CB39F5FD-A79C-4970-A4A4-14E81CFC6558} = {FC2404B0-D775-4E74-AD2A-73BC8E6BF332}
 		{0AD2641F-5F77-4D34-A43E-2344C65AC555} = {FC2404B0-D775-4E74-AD2A-73BC8E6BF332}
+		{6C2F0A2E-6BDB-4328-B0FB-6D4354B88F92} = {FC2404B0-D775-4E74-AD2A-73BC8E6BF332}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87B1407A-3CA9-496E-859A-5D5EC007D2AD}

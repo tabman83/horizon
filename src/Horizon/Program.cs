@@ -19,19 +19,20 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 builder.Services.AddHostedService<HostedService>();
 builder.Services.AddScoped<WebhookDeliveryHandler>();
 builder.Services.AddScoped<WebhookValidationHandler>();
-//builder.Services.AddScoped<DynamicAuthenticationMiddleware>();
-//builder.Services.AddSingleton<IAuthenticationSchemeProvider, AuthenticationSchemeProvider>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument();
 builder.Services.AddApplicationLayer();
 builder.Services.AddInfrastructureLayer();
 builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<AuthenticationConfigProvider>();
 
 using var app = builder.Build();
 app.UseOpenApi();
 app.UseSwaggerUi();
-app.UseMiddleware<DynamicAuthenticationMiddleware>();
+app.UseMiddleware<ConditionalAuthenticationMiddleware>();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapPost(webhooksUrl, CreateLambdaForHandler<WebhookDeliveryHandler>())
     .WithOpenApi();
 app.MapMethods(webhooksUrl, ["OPTIONS"], CreateLambdaForHandler<WebhookValidationHandler>())
