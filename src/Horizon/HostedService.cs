@@ -92,7 +92,7 @@ public sealed class HostedService(
             default:
                 logger.LogInformation("Unknown WatchEventType {Type}", type);
                 throw new InvalidOperationException($"Unknown WatchEventType {type}");
-        };
+        }
     }
 
     private Task<ErrorOr<Success>> HandleVaultsAddedAsync(IEnumerable<AzureKeyVaultSubscription> vaults, string @namespace)

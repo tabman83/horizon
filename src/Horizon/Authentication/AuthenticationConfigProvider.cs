@@ -12,7 +12,7 @@ public sealed record class AzureAdAuthentication(string TenantId, string ClientI
 [ExcludeFromCodeCoverage]
 public class AuthenticationConfigProvider
 {
-    public AuthenticationBase _authentication = new NoAuthentication();
+    private AuthenticationBase _authentication = new NoAuthentication();
 
     public void Set(AuthenticationBase authentication)
     {
