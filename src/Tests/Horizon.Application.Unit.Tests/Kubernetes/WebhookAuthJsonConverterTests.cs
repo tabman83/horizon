@@ -6,7 +6,7 @@ using Horizon.Application.Kubernetes;
 using Moq;
 using Xunit;
 
-namespace Horizon.Application.Tests.Kubernetes;
+namespace Horizon.Application.Unit.Tests.Kubernetes;
 
 public class WebhookAuthJsonConverterTests
 {

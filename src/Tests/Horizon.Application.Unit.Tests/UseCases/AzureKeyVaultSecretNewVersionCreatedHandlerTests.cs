@@ -8,7 +8,7 @@ using Horizon.Application.UseCases;
 using Moq;
 using Xunit;
 
-namespace Horizon.Application.Tests.UseCases;
+namespace Horizon.Application.Unit.Tests.UseCases;
 
 public class AzureKeyVaultSecretNewVersionCreatedHandlerTests
 {

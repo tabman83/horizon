@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace Horizon.Infrastructure.Tests.Kubernetes;
+namespace Horizon.Infrastructure.Unit.Tests.Kubernetes;
 
 public class KubernetesSecretWriterTests
 {

@@ -9,7 +9,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Horizon.Authentication.Tests;
+namespace Horizon.Authentication.Unit.Tests;
 
 public class BasicAuthenticationHandlerTests
 {
