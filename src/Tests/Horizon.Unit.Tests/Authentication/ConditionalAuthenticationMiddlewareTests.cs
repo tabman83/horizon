@@ -5,7 +5,7 @@ using Moq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Horizon.Authentication.Tests;
+namespace Horizon.Authentication.Unit.Tests;
 
 public class ConditionalAuthenticationMiddlewareTests
 {

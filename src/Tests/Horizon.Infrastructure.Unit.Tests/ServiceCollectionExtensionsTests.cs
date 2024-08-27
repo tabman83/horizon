@@ -9,7 +9,7 @@ using k8s;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Horizon.Infrastructure.Tests;
+namespace Horizon.Infrastructure.Unit.Tests;
 
 public class ServiceCollectionExtensionsTests
 {

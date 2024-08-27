@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Security.KeyVault.Secrets;
 using ErrorOr;
 using Horizon.Application;
 using Horizon.Application.AzureKeyVault;

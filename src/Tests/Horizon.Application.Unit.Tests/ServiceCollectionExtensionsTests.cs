@@ -3,7 +3,7 @@ using Horizon.Application.UseCases;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Horizon.Application.Tests;
+namespace Horizon.Application.Unit.Tests;
 
 public class ServiceCollectionExtensionsTests
 {
