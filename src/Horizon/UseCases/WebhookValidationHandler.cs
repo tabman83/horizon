@@ -31,7 +31,7 @@ public class WebhookValidationHandler(
                 [AllowMethodsHeader] = AllowedMethods,
                 [WebHookAllowedRateHeader] = WebHookAllowedRate
             };
-            return Results.Ok().WithHeaders(headers);
+            return Results.NoContent().WithHeaders(headers);
         }
         catch (TaskCanceledException)
         {
