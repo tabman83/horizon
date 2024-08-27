@@ -12,6 +12,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="FluentAssertions" Version="6.12.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
 		<PackageReference Include="Moq" Version="4.20.70" />
@@ -24,6 +25,10 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Horizon.Application\Horizon.Application.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Kubernetes\" />
 	</ItemGroup>
 
 </Project>

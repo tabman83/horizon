@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using ErrorOr;
 using Horizon.Application;
 using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
+using Horizon.Authentication;
 using Horizon.Infrastructure.Kubernetes.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +18,9 @@ namespace Horizon;
 public sealed class HostedService(
     ILogger<HostedService> logger,
     IKubernetesWatcher watcher,
-    IMediator mediator) : BackgroundService
+    IMediator mediator,
+    AuthenticationConfigProvider configProvider,
+    IAuthenticationSchemeProvider authSchemeProvider) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -31,7 +34,28 @@ public sealed class HostedService(
 
     private Task ReconcileConfigurationAsync(WatchEventType type, HorizonProviderConfigurationObject item)
     {
-        Console.WriteLine("ReconcileConfiguration {0} {1}", type, JsonSerializer.Serialize(item.Spec));
+        if (item.Spec is null)
+        {
+            logger.LogError("HorizonProviderConfigurationSpec is null");
+            return Task.CompletedTask;
+        }
+        var spec = item.Spec;
+        authSchemeProvider.RemoveScheme(spec.WebhookAuthentication.Type);
+        configProvider.Set(new NoAuthentication());
+        switch (spec.WebhookAuthentication)
+        {
+            case WebhookAuthenticationBasic auth:
+                configProvider.Set(new BasicAuthentication(auth.Username, auth.Password));
+                authSchemeProvider.AddScheme(new AuthenticationScheme(auth.Type, auth.Type, typeof(BasicAuthenticationHandler)));
+                break;
+            case WebhookAuthenticationAzureAD auth:
+                configProvider.Set(new AzureAdAuthentication(auth.TenantId, auth.ClientId));
+                authSchemeProvider.AddScheme(new AuthenticationScheme(auth.Type, auth.Type, typeof(AzureAdAuthenticationHandler)));
+                break;
+            default:
+                logger.LogError("HorizonProviderConfigurationSpec is invalid");
+                break;
+        }
         return Task.CompletedTask;
     }
 

@@ -3,5 +3,9 @@ kind: HorizonProviderConfiguration
 metadata:
   name: horizon-config
 spec:
-  azureKeyVaultAuthenticationType: ManagedIdentity
-  webhookAuthenticationType: MicrosoftIdentity
+  azureKeyVaultAuthentication:
+    type: ManagedIdentity
+  webhookAuthentication:
+    type: Basic
+    username: admin
+    password: password

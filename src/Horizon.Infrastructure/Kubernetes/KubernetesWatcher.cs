@@ -23,7 +23,7 @@ public class KubernetesWatcher(
         
         await foreach (var (type, item) in watch.WatchAsync<T, T>(cancellationToken: cancellationToken))
         {
-            logger.LogInformation("WatchingCustomObject");
+            logger.LogInformation("WatchingCustomObject {Type}", item.GetType().Name);
             await reconcileDelegate((Application.Kubernetes.WatchEventType)type, item);
         }
     }
