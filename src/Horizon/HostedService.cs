@@ -44,6 +44,8 @@ public sealed class HostedService(
         configProvider.Set(new NoAuthentication());
         switch (spec.WebhookAuthentication)
         {
+            case WebhookAuthenticationNone:
+                break;
             case WebhookAuthenticationBasic auth:
                 configProvider.Set(new BasicAuthentication(auth.Username, auth.Password));
                 authSchemeProvider.AddScheme(new AuthenticationScheme(auth.Type, auth.Type, typeof(BasicAuthenticationHandler)));

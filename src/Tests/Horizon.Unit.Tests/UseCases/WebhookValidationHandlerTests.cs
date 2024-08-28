@@ -32,7 +32,7 @@ public class WebhookValidationHandlerTests
         {
             { WebhookValidationHandler.WebhookRequestOriginHeader, "http://example.com" }
         };
-        httpRequestMock.Setup(x => x.Headers).Returns(headers);
+        httpRequestMock.SetupGet(x => x.Headers).Returns(headers);
         var cancellationToken = CancellationToken.None;
 
         // Act

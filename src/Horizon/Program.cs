@@ -1,14 +1,13 @@
-﻿using Horizon;
+﻿using System.Diagnostics.CodeAnalysis;
+using Horizon;
 using Horizon.Application;
 using Horizon.Authentication;
 using Horizon.Infrastructure;
 using Horizon.UseCases;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 
 const string webhooksUrl = "/webhooks";
 
@@ -48,3 +47,6 @@ static RequestDelegate CreateLambdaForHandler<T>() where T : class, IApiHandler 
         var result = await handler.HandleAsync(httpRequest, cancellationToken);
         await result.ExecuteAsync(context);
     };
+
+[ExcludeFromCodeCoverage]
+public partial class Program { }
