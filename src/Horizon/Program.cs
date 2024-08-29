@@ -45,4 +45,4 @@ static RequestDelegate CreateLambdaForHandler<T>() where T : class, IApiHandler 
     };
 
 [ExcludeFromCodeCoverage]
-public partial class Program { }
+public static partial class Program { }

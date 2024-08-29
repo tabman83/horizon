@@ -1,9 +1,11 @@
 ﻿using k8s;
 using Horizon.Application.Kubernetes;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Horizon.Infrastructure.Kubernetes;
 
+[ExcludeFromCodeCoverage]
 internal static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddKubernetes(this IServiceCollection services)

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -33,12 +34,27 @@ public class WebhookValidationHandlerTests
             { WebhookValidationHandler.WebhookRequestOriginHeader, "http://example.com" }
         };
         httpRequestMock.SetupGet(x => x.Headers).Returns(headers);
-        var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await _sut.HandleAsync(httpRequestMock.Object, cancellationToken);
+        var result = await _sut.HandleAsync(httpRequestMock.Object, default);
 
         // Assert
         result.Should().BeOfType<CustomHeaderResult>();
+    }
+
+    [Fact]
+    public async Task HandleAsync_WhenThrowsException_ShouldReturnError()
+    {
+        // Arrange
+        var httpRequestMock = new Mock<HttpRequest>();
+        httpRequestMock.SetupGet(x => x.Headers)
+            .Throws(new InvalidOperationException());
+
+        // Act
+        var result = await _sut.HandleAsync(httpRequestMock.Object, default);
+
+        // Assert
+        result.Should().BeOfType<ContentHttpResult>()
+            .Which.StatusCode.Should().Be(500);
     }
 }
