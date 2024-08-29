@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using Azure.Core;
 using Azure.Security.KeyVault.Secrets;
 
@@ -14,6 +15,7 @@ public class SecretClientFactory
     {
     }
 
+    [ExcludeFromCodeCoverage]
     public SecretClientFactory(TokenCredential credential)
     {
         _credential = credential;
