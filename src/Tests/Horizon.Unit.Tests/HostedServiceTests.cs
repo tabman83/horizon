@@ -36,7 +36,7 @@ public class HostedServiceTests
 
         // Act
         await hostedService.StartAsync(default);
-        await Task.Delay(200);
+        await Task.Yield();
         await hostedService.StopAsync(default);
 
         // Assert

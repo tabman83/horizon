@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoFixture.Xunit2;
 using ErrorOr;
 using FluentAssertions;
 using Horizon.Application;
@@ -21,9 +20,9 @@ public class SubscriptionReconciliatorTests
     private readonly FakeLogger<HostedService> _logger = new();
     private readonly Mock<IMediator> _mediatorMock = new();
 
-    [Theory, AutoData]
-    [InlineAutoData(WatchEventType.Added)]
-    [InlineAutoData(WatchEventType.Modified)]
+    [Theory]
+    [InlineData(WatchEventType.Added)]
+    [InlineData(WatchEventType.Modified)]
     public async Task ReconcileAsync_ShouldCallHandleVaultsAddedAsync(WatchEventType type)
     {
         // Arrange
@@ -70,9 +69,9 @@ public class SubscriptionReconciliatorTests
         _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
     }
 
-    [Theory, AutoData]
-    [InlineAutoData(WatchEventType.Error)]
-    [InlineAutoData(WatchEventType.Bookmark)]
+    [Theory]
+    [InlineData(WatchEventType.Error)]
+    [InlineData(WatchEventType.Bookmark)]
     public async Task ReconcileAsync_WithOtherEventType_ShouldLogEventTypeAndItems(WatchEventType type)
     {
         // Arrange
