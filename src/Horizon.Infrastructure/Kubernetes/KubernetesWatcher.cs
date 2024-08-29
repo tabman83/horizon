@@ -3,7 +3,6 @@ using System.Threading;
 using k8s;
 using Horizon.Application.Kubernetes;
 using Microsoft.Extensions.Logging;
-using Horizon.Application.Kubernetes.Models;
 
 namespace Horizon.Infrastructure.Kubernetes;
 

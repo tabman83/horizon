@@ -27,12 +27,12 @@ public class WebhookDeliveryHandler(
             if(@event is null)
             {
                 logger.LogInformation("EventIsNull");
-                return Results.Ok();
+                return Results.NoContent();
             }
             if (!@event.TryGetSystemEventData(out object eventData))
             {
                 logger.LogInformation("EventTypeNotAvailable {EventType} {Event}", @event.Type, @event.Data?.ToString());
-                return Results.Ok();
+                return Results.NoContent();
             }
             switch (eventData)
             {
@@ -43,10 +43,10 @@ public class WebhookDeliveryHandler(
                     response.Switch(
                         success => logger.LogInformation("KeyVaultSecretNewVersionCreatedSuccess"),
                         errors => logger.LogError("KeyVaultSecretNewVersionCreatedError {Errors}", errors));
-                    return Results.Ok();
+                    return Results.NoContent();
                 default:
                     logger.LogInformation("UnhandledEventType {EventType} {Event}", @event.Type, @event.Data?.ToString());
-                    return Results.Ok();
+                    return Results.NoContent();
             }
         }
         catch (TaskCanceledException)
@@ -56,7 +56,7 @@ public class WebhookDeliveryHandler(
         catch (Exception exception)
         {
             logger.LogError(exception, "ErrorHandlingWebhookDelivery");
-            return Results.Ok();
+            return Results.NoContent();
         }
     }
 }

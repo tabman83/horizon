@@ -1,4 +1,4 @@
-﻿using Horizon.Application.Kubernetes.Models;
+﻿using Horizon.Application.Kubernetes;
 using k8s.Models;
 
 namespace Horizon.Infrastructure.Kubernetes.Models;

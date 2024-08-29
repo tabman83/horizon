@@ -1,14 +1,14 @@
-﻿using Horizon;
+﻿using System.Diagnostics.CodeAnalysis;
+using Horizon;
 using Horizon.Application;
 using Horizon.Authentication;
 using Horizon.Infrastructure;
+using Horizon.Reconciliators;
 using Horizon.UseCases;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Web;
 
 const string webhooksUrl = "/webhooks";
 
@@ -19,24 +19,19 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 builder.Services.AddHostedService<HostedService>();
 builder.Services.AddScoped<WebhookDeliveryHandler>();
 builder.Services.AddScoped<WebhookValidationHandler>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApiDocument();
 builder.Services.AddApplicationLayer();
 builder.Services.AddInfrastructureLayer();
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddSingleton<AuthenticationConfigProvider>();
+builder.Services.AddReconciliators();
 
 using var app = builder.Build();
-app.UseOpenApi();
-app.UseSwaggerUi();
 app.UseMiddleware<ConditionalAuthenticationMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapPost(webhooksUrl, CreateLambdaForHandler<WebhookDeliveryHandler>())
-    .WithOpenApi();
-app.MapMethods(webhooksUrl, ["OPTIONS"], CreateLambdaForHandler<WebhookValidationHandler>())
-    .WithOpenApi();
+app.MapPost(webhooksUrl, CreateLambdaForHandler<WebhookDeliveryHandler>());
+app.MapMethods(webhooksUrl, ["OPTIONS"], CreateLambdaForHandler<WebhookValidationHandler>());
 await app.RunAsync();
 
 static RequestDelegate CreateLambdaForHandler<T>() where T : class, IApiHandler =>
@@ -48,3 +43,6 @@ static RequestDelegate CreateLambdaForHandler<T>() where T : class, IApiHandler 
         var result = await handler.HandleAsync(httpRequest, cancellationToken);
         await result.ExecuteAsync(context);
     };
+
+[ExcludeFromCodeCoverage]
+public partial class Program { }

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Horizon.Application.Kubernetes;
 
-namespace Horizon;
+namespace Horizon.Authentication;
 
 public abstract record AuthenticationBase(string Type);
 public sealed record class NoAuthentication() : AuthenticationBase(WebhookAuthenticationNone.AuthType);
