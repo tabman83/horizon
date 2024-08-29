@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Messaging;
 using ErrorOr;
 using FluentAssertions;
 using Horizon.Application;
@@ -30,7 +29,7 @@ public class WebhookDeliveryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_WithNullEvent_ReturnsOkResult()
+    public async Task HandleAsync_WithNullEvent_ReturnsNoContentResult()
     {
         // Arrange
         var httpRequest = new Mock<HttpRequest>();
@@ -44,7 +43,7 @@ public class WebhookDeliveryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_WithSystemEventData_ReturnsOkResult()
+    public async Task HandleAsync_WithSystemEventData_ReturnsNoContentResult()
     {
         // Arrange
         var httpRequest = new Mock<HttpRequest>();
@@ -59,7 +58,7 @@ public class WebhookDeliveryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_WithKeyVaultSecretNewVersionCreatedEventData_CallsMediatorAndReturnsOkResult()
+    public async Task HandleAsync_WithKeyVaultSecretNewVersionCreatedEventData_CallsMediatorAndReturnNoContentResult()
     {
         // Arrange
         var httpRequest = new Mock<HttpRequest>();
@@ -108,7 +107,7 @@ public class WebhookDeliveryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_WithException_ReturnsOkResult()
+    public async Task HandleAsync_WithException_ReturnsNoContentResult()
     {
         // Arrange
         var httpRequest = new Mock<HttpRequest>();

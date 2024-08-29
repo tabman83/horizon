@@ -1,4 +1,4 @@
-﻿namespace Horizon.Application.Kubernetes.Models;
+﻿namespace Horizon.Application.Kubernetes;
 
 public interface IHorizonBaseKubernetesObject<TSpec>
 {
