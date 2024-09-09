@@ -19,8 +19,6 @@ public class KubernetesSecretWriter(
     ILogger<KubernetesSecretWriter> logger) : IKubernetesSecretWriter
 {
     internal const string DefaultSecretType = "Opaque";
-    internal const string ManagedByLabelName = "app.kubernetes.io/managed-by";
-    internal const string ManagedByLabelValue = "Horizon";
 
     public async Task<ErrorOr<Success>> ReplaceAsync(string kubernetesSecretObjectName, string @namespace, IEnumerable<SecretBundle> secrets, CancellationToken cancellationToken = default)
     {
@@ -29,11 +27,7 @@ public class KubernetesSecretWriter(
             Metadata = new V1ObjectMeta 
             { 
                 Name = kubernetesSecretObjectName, 
-                NamespaceProperty = @namespace,
-                Labels = new Dictionary<string, string>
-                {
-                    [ManagedByLabelName] = "Horizon"
-                }
+                NamespaceProperty = @namespace
             },
             Data = secrets.ToDictionary(s => s.Name, s => Encoding.UTF8.GetBytes(s.Value)),
             Type = DefaultSecretType
