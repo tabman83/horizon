@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ErrorOr;
@@ -6,40 +6,41 @@ using FluentAssertions;
 using Horizon.Application.AzureKeyVault;
 using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
 namespace Horizon.Application.Unit.Tests.UseCases;
 
-public class AzureKeyVaultSubscriptionAddedHandlerTests
+public class AzureKeyVaultSubscriptionRemovedHandlerTests
 {
     private readonly Mock<IKeyVaultSecretReader> _secretReaderMock;
     private readonly Mock<ISubscriptionsStore> _storeMock;
     private readonly Mock<IKubernetesSecretWriter> _secretWriterMock;
-    private readonly AzureKeyVaultSubscriptionAddedHandler _handler;
+    private readonly AzureKeyVaultSubscriptionRemovedHandler _handler;
 
-    public AzureKeyVaultSubscriptionAddedHandlerTests()
+    public AzureKeyVaultSubscriptionRemovedHandlerTests()
     {
         _secretReaderMock = new Mock<IKeyVaultSecretReader>();
         _storeMock = new Mock<ISubscriptionsStore>();
         _secretWriterMock = new Mock<IKubernetesSecretWriter>();
-        _handler = new AzureKeyVaultSubscriptionAddedHandler(
+        _handler = new AzureKeyVaultSubscriptionRemovedHandler(
             _secretReaderMock.Object,
             _storeMock.Object,
             _secretWriterMock.Object);
     }
 
     [Fact]
-    public async Task HandleAsync_ShouldHandleAzureKeyVaultSubscriptionAddedRequest()
+    public async Task HandleAsync_ShouldHandleAzureKeyVaultSubscriptionRemovedRequest()
     {
         // Arrange
 
         _storeMock
-            .Setup(x => x.AddSubscription("AzureKeyVault1", new KubernetesBundle("K8sSecretObject1", "SecretPrefix1", "Namespace1")))
+            .Setup(x => x.RemoveSubscription("AzureKeyVault1", new KubernetesBundle("K8sSecretObject1", "SecretPrefix1", "Namespace1")))
             .Returns(Result.Success)
             .Verifiable();
         _storeMock
-            .Setup(x => x.AddSubscription("AzureKeyVault2", new KubernetesBundle("K8sSecretObject2", "SecretPrefix2", "Namespace1")))
+            .Setup(x => x.RemoveSubscription("AzureKeyVault2", new KubernetesBundle("K8sSecretObject2", "SecretPrefix2", "Namespace1")))
             .Returns(Result.Success)
             .Verifiable();
 
@@ -67,7 +68,7 @@ public class AzureKeyVaultSubscriptionAddedHandlerTests
             new ("AzureKeyVault1", "K8sSecretObject1", "SecretPrefix1"),
             new ("AzureKeyVault2", "K8sSecretObject2", "SecretPrefix2")
         };
-        var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, "Namespace1");
+        var request = new AzureKeyVaultSubscriptionRemovedRequest(mappings, "Namespace1");
 
         // Act
         var result = await _handler.HandleAsync(request, default);
