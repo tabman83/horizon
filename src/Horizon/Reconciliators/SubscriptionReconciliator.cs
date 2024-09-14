@@ -40,8 +40,8 @@ public class SubscriptionReconciliator(
             case WatchEventType.Deleted:
                 var deleteResponse = await HandleVaultsDeletedAsync(vaults, item.Metadata.NamespaceProperty);
                 deleteResponse.Switch(
-                    _ => logger.LogInformation("AzureKeyVaultSubscriptionDeleted"),
-                    errors => logger.LogError("AzureKeyVaultSubscriptionDeletedErrors {Errors}", errors));
+                    _ => logger.LogInformation("AzureKeyVaultSubscriptionRemoved"),
+                    errors => logger.LogError("AzureKeyVaultSubscriptionRemovedErrors {Errors}", errors));
                 break;
             case WatchEventType.Error:
             case WatchEventType.Bookmark:
