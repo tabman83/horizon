@@ -32,13 +32,16 @@ public class SubscriptionReconciliator(
         {
             case WatchEventType.Added:
             case WatchEventType.Modified:
-                var response = await HandleVaultsAddedAsync(vaults, item.Metadata.NamespaceProperty);
-                response.Switch(
+                var addResponse = await HandleVaultsAddedAsync(vaults, item.Metadata.NamespaceProperty);
+                addResponse.Switch(
                     _ => logger.LogInformation("AzureKeyVaultSubscriptionAdded"),
                     errors => logger.LogError("AzureKeyVaultSubscriptionAddedErrors {Errors}", errors));
                 break;
             case WatchEventType.Deleted:
-                Console.WriteLine("Deleted");
+                var deleteResponse = await HandleVaultsDeletedAsync(vaults, item.Metadata.NamespaceProperty);
+                deleteResponse.Switch(
+                    _ => logger.LogInformation("AzureKeyVaultSubscriptionDeleted"),
+                    errors => logger.LogError("AzureKeyVaultSubscriptionDeletedErrors {Errors}", errors));
                 break;
             case WatchEventType.Error:
             case WatchEventType.Bookmark:
@@ -53,8 +56,15 @@ public class SubscriptionReconciliator(
 
     private Task<ErrorOr<Success>> HandleVaultsAddedAsync(IEnumerable<AzureKeyVaultSubscription> vaults, string @namespace)
     {
-        var mappings = vaults.Select(mapping => new AzureKeyVaultMappingRequest(mapping.AzureKeyVaultName, mapping.K8sSecretObjectName, mapping.SecretPrefix));
+        var mappings = vaults.Select(mapping => new AzureKeyVaultMapping(mapping.AzureKeyVaultName, mapping.K8sSecretObjectName, mapping.SecretPrefix));
         var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, @namespace);
-        return mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(request);
+        return mediator.SendAsync<AzureKeyVaultSubscriptionAddedRequest, Success>(request);
+    }
+
+    private Task<ErrorOr<Success>> HandleVaultsDeletedAsync(IEnumerable<AzureKeyVaultSubscription> vaults, string @namespace)
+    {
+        var mappings = vaults.Select(mapping => new AzureKeyVaultMapping(mapping.AzureKeyVaultName, mapping.K8sSecretObjectName, mapping.SecretPrefix));
+        var request = new AzureKeyVaultSubscriptionRemovedRequest(mappings, @namespace);
+        return mediator.SendAsync<AzureKeyVaultSubscriptionRemovedRequest, Success>(request);
     }
 }

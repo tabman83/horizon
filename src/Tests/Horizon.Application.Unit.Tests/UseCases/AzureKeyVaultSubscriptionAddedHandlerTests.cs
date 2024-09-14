@@ -14,7 +14,6 @@ namespace Horizon.Application.Unit.Tests.UseCases;
 
 public class AzureKeyVaultSubscriptionAddedHandlerTests
 {
-    private readonly Mock<ILogger<AzureKeyVaultSubscriptionAddedHandler>> _loggerMock;
     private readonly Mock<IKeyVaultSecretReader> _secretReaderMock;
     private readonly Mock<ISubscriptionsStore> _storeMock;
     private readonly Mock<IKubernetesSecretWriter> _secretWriterMock;
@@ -22,12 +21,10 @@ public class AzureKeyVaultSubscriptionAddedHandlerTests
 
     public AzureKeyVaultSubscriptionAddedHandlerTests()
     {
-        _loggerMock = new Mock<ILogger<AzureKeyVaultSubscriptionAddedHandler>>();
         _secretReaderMock = new Mock<IKeyVaultSecretReader>();
         _storeMock = new Mock<ISubscriptionsStore>();
         _secretWriterMock = new Mock<IKubernetesSecretWriter>();
         _handler = new AzureKeyVaultSubscriptionAddedHandler(
-            _loggerMock.Object,
             _secretReaderMock.Object,
             _storeMock.Object,
             _secretWriterMock.Object);
@@ -66,7 +63,7 @@ public class AzureKeyVaultSubscriptionAddedHandlerTests
             .ReturnsAsync(Result.Success)
             .Verifiable();
 
-        var mappings = new List<AzureKeyVaultMappingRequest>
+        var mappings = new List<AzureKeyVaultMapping>
         {
             new ("AzureKeyVault1", "K8sSecretObject1", "SecretPrefix1"),
             new ("AzureKeyVault2", "K8sSecretObject2", "SecretPrefix2")

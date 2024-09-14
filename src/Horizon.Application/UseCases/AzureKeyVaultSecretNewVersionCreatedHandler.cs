@@ -13,7 +13,7 @@ public sealed record AzureKeyVaultSecretNewVersionCreatedRequest(string VaultNam
 public class AzureKeyVaultSecretNewVersionCreatedHandler(
     ISubscriptionsStore store,
     IKeyVaultSecretReader secretReader,
-    IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>
+    IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, Success>
 {
     public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSecretNewVersionCreatedRequest request, CancellationToken cancellationToken = default)
     {

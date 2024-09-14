@@ -41,7 +41,7 @@ public class SubscriptionReconciliatorTests
         await reconciliator.ReconcileAsync(type, item);
 
         // Assert
-        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(
+        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, Success>(
             It.Is<AzureKeyVaultSubscriptionAddedRequest>(r =>
                 r.Mappings.Count() == 1 &&
                 r.Mappings.First().AzureKeyVaultName == "TestVault" &&
@@ -66,7 +66,7 @@ public class SubscriptionReconciliatorTests
         await reconciliator.ReconcileAsync(type, item);
 
         // Assert
-        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
+        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, Success>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
     }
 
     [Theory]
@@ -91,6 +91,6 @@ public class SubscriptionReconciliatorTests
         await reconciliator.ReconcileAsync(type, item);
 
         // Assert
-        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
+        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, Success>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
     }
 }

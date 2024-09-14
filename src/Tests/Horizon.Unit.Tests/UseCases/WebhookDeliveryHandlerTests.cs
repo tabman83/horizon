@@ -66,7 +66,7 @@ public class WebhookDeliveryHandlerTests
         httpRequest.SetupGet(r => r.Body).Returns(new MemoryStream(@event));
 
         var request = new AzureKeyVaultSecretNewVersionCreatedRequest("sample-kv", "cm--secret-name");
-        _mediatorMock.Setup(m => m.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>(request, It.IsAny<CancellationToken>()))
+        _mediatorMock.Setup(m => m.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, Success>(request, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success);
 
         // Act
@@ -74,7 +74,7 @@ public class WebhookDeliveryHandlerTests
 
         // Assert
         result.Should().BeOfType<NoContent>();
-        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>(request, It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, Success>(request, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public class WebhookDeliveryHandlerTests
         var httpRequest = new Mock<HttpRequest>();
         httpRequest.SetupGet(r => r.Body).Returns(Stream.Null);
 
-        _mediatorMock.Setup(m => m.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>(It.IsAny<AzureKeyVaultSecretNewVersionCreatedRequest>(), It.IsAny<CancellationToken>()))
+        _mediatorMock.Setup(m => m.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, Success>(It.IsAny<AzureKeyVaultSecretNewVersionCreatedRequest>(), It.IsAny<CancellationToken>()))
             .Throws(new Exception());
 
         // Act

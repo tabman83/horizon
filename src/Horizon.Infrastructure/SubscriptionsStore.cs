@@ -32,4 +32,26 @@ public class SubscriptionsStore : ISubscriptionsStore
         }
         return kubernetesBundles.ToErrorOr();
     }
+
+    public ErrorOr<Success> RemoveSubscription(string azureKeyVaultName, KubernetesBundle kubernetesBundle)
+    {
+        try
+        {
+            if (store.TryGetValue(azureKeyVaultName, out var bundles))
+            {
+                var updatedBundles = new List<KubernetesBundle>(bundles);
+                updatedBundles.Remove(kubernetesBundle);
+                store[azureKeyVaultName] = updatedBundles;
+                return Result.Success;
+            }
+            else
+            {
+                return Error.NotFound();
+            }
+        }
+        catch (Exception exception)
+        {
+            return Error.Unexpected(description: exception.Message);
+        }
+    }
 }

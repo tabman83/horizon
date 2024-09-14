@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ErrorOr;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -8,13 +10,13 @@ namespace Horizon.Application.Unit.Tests;
 
 public class MediatorTests
 {
-    private readonly Mock<IServiceProvider> _serviceProviderMock;
+    private readonly Mock<IServiceProvider> _serviceProviderMock = new();
+    private readonly Mock<ILogger<Mediator>> _loggerMock = new();
     private readonly Mediator _mediator;
 
     public MediatorTests()
     {
-        _serviceProviderMock = new Mock<IServiceProvider>();
-        _mediator = new Mediator(_serviceProviderMock.Object);
+        _mediator = new Mediator(_serviceProviderMock.Object, _loggerMock.Object);
     }
 
     [Fact]
@@ -48,7 +50,7 @@ public class MediatorTests
     }
 
     // Test classes for demonstration purposes
-    public class TestRequest : IRequest<TestResponse>
+    public class TestRequest : IRequest<ErrorOr<TestResponse>>
     {
     }
 
