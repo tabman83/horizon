@@ -33,9 +33,9 @@ public class ParallelSecretLoaderTests
 
         // Assert
         secrets.Should().HaveCount(2);
-        secrets[0].Value.Name.Should().Be(secretName2);
-        secrets[0].Value.Value.Should().Be("value2");
-        secrets[1].Value.Name.Should().Be(secretName1);
-        secrets[1].Value.Value.Should().Be("value1");
+        secrets[0].Value.Name.Should().Be(secretName1);
+        secrets[0].Value.Value.Should().Be("value1");
+        secrets[1].Value.Name.Should().Be(secretName2);
+        secrets[1].Value.Value.Should().Be("value2");
     }
 }
