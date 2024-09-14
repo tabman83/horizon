@@ -41,7 +41,7 @@ public class SubscriptionReconciliatorTests
         await reconciliator.ReconcileAsync(type, item);
 
         // Assert
-        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(
+        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, Success>(
             It.Is<AzureKeyVaultSubscriptionAddedRequest>(r =>
                 r.Mappings.Count() == 1 &&
                 r.Mappings.First().AzureKeyVaultName == "TestVault" &&
@@ -53,20 +53,36 @@ public class SubscriptionReconciliatorTests
         _logger.LatestRecord.Message.Should().Be("AzureKeyVaultSubscriptionAdded");
     }
 
-    [Fact]
-    public async Task ReconcileAsync_WithDeletedEventType_ShouldNotCallHandleVaultsAddedAsync()
+    [Theory]
+    [InlineData(WatchEventType.Deleted)]
+    public async Task ReconcileAsync_WithDeletedEventType_ShouldCallHandleVaultsRemovedAsync(WatchEventType type)
     {
         // Arrange
         var reconciliator = new SubscriptionReconciliator(_logger, _mediatorMock.Object);
-
-        var type = WatchEventType.Deleted;
-        var item = new AzureKeyVaultSubscriptionObject();
+        var item = new AzureKeyVaultSubscriptionObject
+        {
+            Metadata = new V1ObjectMeta
+            {
+                Name = "TestSubscription",
+                NamespaceProperty = "TestNamespace"
+            },
+            Spec = new AzureKeyVaultSubscriptionSpec([new AzureKeyVaultSubscription("TestVault", "TestSecret", "TestPrefix")])
+        };
 
         // Act
         await reconciliator.ReconcileAsync(type, item);
 
         // Assert
-        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
+        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionRemovedRequest, Success>(
+            It.Is<AzureKeyVaultSubscriptionRemovedRequest>(r =>
+                r.Mappings.Count() == 1 &&
+                r.Mappings.First().AzureKeyVaultName == "TestVault" &&
+                r.Mappings.First().K8sSecretObjectName == "TestSecret" &&
+                r.Mappings.First().SecretPrefix == "TestPrefix" &&
+                r.Namespace == "TestNamespace"
+            ), default
+        ), Times.Once);
+        _logger.LatestRecord.Message.Should().Be("AzureKeyVaultSubscriptionRemoved");
     }
 
     [Theory]
@@ -91,6 +107,6 @@ public class SubscriptionReconciliatorTests
         await reconciliator.ReconcileAsync(type, item);
 
         // Assert
-        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, ErrorOr<Success>>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
+        _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, Success>(It.IsAny<AzureKeyVaultSubscriptionAddedRequest>(), default), Times.Never);
     }
 }

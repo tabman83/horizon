@@ -1,6 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ErrorOr;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -8,13 +11,13 @@ namespace Horizon.Application.Unit.Tests;
 
 public class MediatorTests
 {
-    private readonly Mock<IServiceProvider> _serviceProviderMock;
+    private readonly Mock<IServiceProvider> _serviceProviderMock = new();
+    private readonly Mock<ILogger<Mediator>> _loggerMock = new();
     private readonly Mediator _mediator;
 
     public MediatorTests()
     {
-        _serviceProviderMock = new Mock<IServiceProvider>();
-        _mediator = new Mediator(_serviceProviderMock.Object);
+        _mediator = new Mediator(_serviceProviderMock.Object, _loggerMock.Object);
     }
 
     [Fact]
@@ -35,7 +38,7 @@ public class MediatorTests
     }
 
     [Fact]
-    public async Task SendAsync_WithInvalidRequest_ThrowsException()
+    public async Task SendAsync_WithInvalidRequest_ReturnsUnexpectedError()
     {
         // Arrange
         var request = new TestRequest();
@@ -44,11 +47,13 @@ public class MediatorTests
         _serviceProviderMock.Setup(s => s.GetService(typeof(IAsyncRequestHandler<TestRequest, TestResponse>))).Returns(handlerMock.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<Exception>(() => _mediator.SendAsync<TestRequest, TestResponse>(request));
+        var result = await _mediator.SendAsync<TestRequest, TestResponse>(request);
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Error.Unexpected());
     }
 
     // Test classes for demonstration purposes
-    public class TestRequest : IRequest<TestResponse>
+    public class TestRequest : IRequest<ErrorOr<TestResponse>>
     {
     }
 

@@ -39,7 +39,7 @@ public class WebhookDeliveryHandler(
                 case KeyVaultSecretNewVersionCreatedEventData data:
                     logger.LogInformation("KeyVaultSecretNewVersionCreated {Data}", data);
                     var request = new AzureKeyVaultSecretNewVersionCreatedRequest(data.VaultName, data.ObjectName);
-                    var response = await mediator.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, ErrorOr<Success>>(request, cancellationToken);
+                    var response = await mediator.SendAsync<AzureKeyVaultSecretNewVersionCreatedRequest, Success>(request, cancellationToken);
                     response.Switch(
                         success => logger.LogInformation("KeyVaultSecretNewVersionCreatedSuccess"),
                         errors => logger.LogError("KeyVaultSecretNewVersionCreatedError {Errors}", errors));
