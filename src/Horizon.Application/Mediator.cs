@@ -26,9 +26,9 @@ public class Mediator(
                 var handler = (IAsyncRequestHandler<TRequest, TResponse>)serviceProvider.GetRequiredService(typeof(IAsyncRequestHandler<TRequest, TResponse>));
                 return await handler.HandleAsync(request, cancellationToken);
             }
-            catch
+            catch(Exception exception)
             {
-                logger.LogInformation("RequestError");
+                logger.LogError(exception, "RequestError");
                 return Error.Unexpected();
             }
             finally
