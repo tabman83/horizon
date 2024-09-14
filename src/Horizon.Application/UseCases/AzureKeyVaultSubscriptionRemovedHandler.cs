@@ -12,7 +12,7 @@ public sealed record AzureKeyVaultSubscriptionRemovedRequest(IEnumerable<AzureKe
 
 public sealed record AzureKeyVaultMappingRemovedRequest(string AzureKeyVaultName, string K8sSecretObjectName, string? SecretPrefix);
 
-internal class AzureKeyVaultSubscriptionRemovedHandler(
+public class AzureKeyVaultSubscriptionRemovedHandler(
     IKeyVaultSecretReader secretReader,
     ISubscriptionsStore store,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSubscriptionRemovedRequest, Success>

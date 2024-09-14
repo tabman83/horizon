@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ErrorOr;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -37,7 +38,7 @@ public class MediatorTests
     }
 
     [Fact]
-    public async Task SendAsync_WithInvalidRequest_ThrowsException()
+    public async Task SendAsync_WithInvalidRequest_ReturnsUnexpectedError()
     {
         // Arrange
         var request = new TestRequest();
@@ -46,7 +47,9 @@ public class MediatorTests
         _serviceProviderMock.Setup(s => s.GetService(typeof(IAsyncRequestHandler<TestRequest, TestResponse>))).Returns(handlerMock.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<Exception>(() => _mediator.SendAsync<TestRequest, TestResponse>(request));
+        var result = await _mediator.SendAsync<TestRequest, TestResponse>(request);
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Error.Unexpected());
     }
 
     // Test classes for demonstration purposes
