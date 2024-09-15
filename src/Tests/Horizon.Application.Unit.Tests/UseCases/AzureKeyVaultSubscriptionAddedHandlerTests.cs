@@ -61,4 +61,50 @@ public class AzureKeyVaultSubscriptionAddedHandlerTests
         _secretReaderMock.Verify();
         _secretWriterMock.Verify();
     }
+
+    [Fact]
+    public async Task UpdateAzureKeyVaultSubscription_KeepsSecretsInSync()
+    {
+        _secretReaderMock.Setup(x => x.LoadAllSecretsAsync("AzureKeyVault1", null, default))
+            .ReturnsAsync(new List<SecretBundle> { new("SecretName1", "SecretValue1") });
+        _secretReaderMock.Setup(x => x.LoadAllSecretsAsync("AzureKeyVault2", null, default))
+            .ReturnsAsync(new List<SecretBundle> { new("SecretName2", "SecretValue2") });
+
+        var sut = new AzureKeyVaultSubscriptionAddedHandler(_secretReaderMock.Object, _store, _secretWriterMock.Object);
+
+        await sut.HandleAsync(
+            new AzureKeyVaultSubscriptionAddedRequest(
+            [
+                new("AzureKeyVault1", null),
+                new("AzureKeyVault2", null)
+            ], "K8sSecretObject1", "Namespace1"), default);
+
+        _secretWriterMock.Verify(x => x.ReplaceAsync("K8sSecretObject1", "Namespace1", new List<SecretBundle>
+        {
+            new("SecretName1", "SecretValue1"),
+            new("SecretName2", "SecretValue2")
+        }, default), Times.Once);
+
+        await sut.HandleAsync(
+            new AzureKeyVaultSubscriptionAddedRequest(
+            [
+                new("AzureKeyVault2", null)
+            ], "K8sSecretObject1", "Namespace1"), default);
+
+        _secretWriterMock.Verify(x => x.ReplaceAsync("K8sSecretObject1", "Namespace1", new List<SecretBundle>
+        {
+            new("SecretName2", "SecretValue2")
+        }, default), Times.Once);
+
+        await sut.HandleAsync(
+            new AzureKeyVaultSubscriptionAddedRequest(
+            [
+                new("AzureKeyVault1", null)
+            ], "K8sSecretObject1", "Namespace1"), default);
+
+        _secretWriterMock.Verify(x => x.ReplaceAsync("K8sSecretObject1", "Namespace1", new List<SecretBundle>
+        {
+            new("SecretName1", "SecretValue1")
+        }, default), Times.Once);
+    }
 }

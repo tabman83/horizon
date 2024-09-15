@@ -20,7 +20,7 @@ public class AzureKeyVaultSubscriptionAddedHandler(
         List<SecretBundle> secretBundles = [];
         foreach (var azureKeyVault in request.AzureKeyVaults)
         {
-            await store.AddSubscription(request.K8sSecretObjectName, new KubernetesBundle(request.K8sSecretObjectName, azureKeyVault.SecretPrefix, request.Namespace))
+            await store.AddSubscription(azureKeyVault.AzureKeyVaultName, new KubernetesBundle(request.K8sSecretObjectName, azureKeyVault.SecretPrefix, request.Namespace))
                 .ThenAsync(_ => secretReader.LoadAllSecretsAsync(azureKeyVault.AzureKeyVaultName, azureKeyVault.SecretPrefix, cancellationToken))
                 .Switch(secretBundles.AddRange, errors.AddRange);
         }

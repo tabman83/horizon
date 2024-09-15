@@ -32,6 +32,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapPost(webhooksUrl, CreateLambdaForHandler<WebhookDeliveryHandler>());
 app.MapMethods(webhooksUrl, ["OPTIONS"], CreateLambdaForHandler<WebhookValidationHandler>());
+app.MapMethods("/probe", ["HEAD"], () => Results.Ok("Healthy"));
 await app.RunAsync();
 
 static RequestDelegate CreateLambdaForHandler<T>() where T : class, IApiHandler =>

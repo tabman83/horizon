@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
     {
+        services.AddSingleton<SubscriptionsStore>();
         services.AddTransient<IMediator, Mediator>();
         services.AddTransient<IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, Success>, AzureKeyVaultSubscriptionAddedHandler>();
         services.AddTransient<IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, Success>, AzureKeyVaultSecretNewVersionCreatedHandler>();

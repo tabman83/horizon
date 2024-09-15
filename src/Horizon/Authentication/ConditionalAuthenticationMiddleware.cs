@@ -8,8 +8,15 @@ public class ConditionalAuthenticationMiddleware(
     RequestDelegate next,
     AuthenticationConfigProvider configProvider)
 {
+    public const string ProbeUrl = "/probe";
+
     public async Task InvokeAsync(HttpContext context)
     {
+        if(context.Request?.Path.Value?.Equals(ProbeUrl, System.StringComparison.InvariantCultureIgnoreCase) ?? false)
+        {
+            await next(context);
+            return;
+        }
         var auth = configProvider.Get<AuthenticationBase>();
         switch(auth)
         {
