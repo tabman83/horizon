@@ -17,10 +17,11 @@ public class ServiceCollectionExtensionsTests
         services.AddApplicationLayer();
 
         // Assert
-        Assert.Equal(4, services.Count);
+        Assert.Equal(5, services.Count);
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IMediator) && descriptor.ImplementationType == typeof(Mediator));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IAsyncRequestHandler<AzureKeyVaultSubscriptionRemovedRequest, Success>) && descriptor.ImplementationType == typeof(AzureKeyVaultSubscriptionRemovedHandler));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, Success>) && descriptor.ImplementationType == typeof(AzureKeyVaultSubscriptionAddedHandler));
         Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, Success>) && descriptor.ImplementationType == typeof(AzureKeyVaultSecretNewVersionCreatedHandler));
+        Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(SubscriptionsStore) && descriptor.ImplementationType == typeof(SubscriptionsStore));
     }
 }
