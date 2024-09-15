@@ -1,5 +1,4 @@
-﻿using System;
-using ErrorOr;
+﻿using ErrorOr;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,29 +7,27 @@ using Horizon.Application.Kubernetes;
 
 namespace Horizon.Application.UseCases;
 
-public sealed record AzureKeyVaultSubscriptionAddedRequest(IEnumerable<AzureKeyVaultMapping> Mappings, string Namespace) : IRequest<ErrorOr<Success>>;
+public sealed record AzureKeyVaultSubscriptionAddedRequest(IEnumerable<AzureKeyVaultMapping> AzureKeyVaults, string K8sSecretObjectName, string Namespace) : IRequest<ErrorOr<Success>>;
 
 public class AzureKeyVaultSubscriptionAddedHandler(
     IKeyVaultSecretReader secretReader,
     ISubscriptionsStore store,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSubscriptionAddedRequest, Success>
 {
-    internal static Action<Success> EmptyAction => _ => { };
-
     public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSubscriptionAddedRequest request, CancellationToken cancellationToken = default)
     {
-        List<Error> errorList = [];
-        foreach (var mapping in request.Mappings)
+        List<Error> errors = [];
+        List<SecretBundle> secretBundles = [];
+        foreach (var azureKeyVault in request.AzureKeyVaults)
         {
-            await store.AddSubscription(mapping.AzureKeyVaultName, new KubernetesBundle(mapping.K8sSecretObjectName, mapping.SecretPrefix, request.Namespace))
-                .ThenAsync(_ => secretReader.LoadAllSecretsAsync(mapping.AzureKeyVaultName, mapping.SecretPrefix, cancellationToken))
-                .ThenAsync(secrets => secretWriter.ReplaceAsync(mapping.K8sSecretObjectName, request.Namespace, secrets, cancellationToken))
-                .Switch(EmptyAction, errorList.AddRange);
+            await store.AddSubscription(request.K8sSecretObjectName, new KubernetesBundle(azureKeyVault.AzureKeyVaultName, azureKeyVault.SecretPrefix, request.Namespace))
+                .ThenAsync(_ => secretReader.LoadAllSecretsAsync(azureKeyVault.AzureKeyVaultName, azureKeyVault.SecretPrefix, cancellationToken))
+                .Switch(secretBundles.AddRange, errors.AddRange);
         }
-        if (errorList.Count > 0)
+        if (errors.Count > 0)
         {
-            return errorList;
+            return errors;
         }
-        return Result.Success;
+        return await secretWriter.ReplaceAsync(request.K8sSecretObjectName, request.Namespace, secretBundles, cancellationToken);
     }
 }

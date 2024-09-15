@@ -8,12 +8,9 @@ using Horizon.Application.Kubernetes;
 
 namespace Horizon.Application.UseCases;
 
-public sealed record AzureKeyVaultSubscriptionRemovedRequest(IEnumerable<AzureKeyVaultMapping> Mappings, string Namespace) : IRequest<ErrorOr<Success>>;
-
-public sealed record AzureKeyVaultMappingRemovedRequest(string AzureKeyVaultName, string K8sSecretObjectName, string? SecretPrefix);
+public sealed record AzureKeyVaultSubscriptionRemovedRequest(IEnumerable<AzureKeyVaultMapping> AzureKeyVaults, string K8sSecretObjectName, string Namespace) : IRequest<ErrorOr<Success>>;
 
 public class AzureKeyVaultSubscriptionRemovedHandler(
-    IKeyVaultSecretReader secretReader,
     ISubscriptionsStore store,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSubscriptionRemovedRequest, Success>
 {
@@ -21,18 +18,17 @@ public class AzureKeyVaultSubscriptionRemovedHandler(
 
     public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSubscriptionRemovedRequest request, CancellationToken cancellationToken = default)
     {
-        List<Error> errorList = [];
-        foreach (var mapping in request.Mappings)
+        List<Error> errors = [];
+        List<SecretBundle> secretBundles = [];
+        foreach (var azureKeyVault in request.AzureKeyVaults)
         {
-            await store.RemoveSubscription(mapping.AzureKeyVaultName, new KubernetesBundle(mapping.K8sSecretObjectName, mapping.SecretPrefix, request.Namespace))
-                .ThenAsync(_ => secretReader.LoadAllSecretsAsync(mapping.AzureKeyVaultName, mapping.SecretPrefix, cancellationToken))
-                .ThenAsync(secrets => secretWriter.ReplaceAsync(mapping.K8sSecretObjectName, request.Namespace, secrets, cancellationToken))
-                .Switch(EmptyAction, errorList.AddRange);
+            store.RemoveSubscription(request.K8sSecretObjectName, new KubernetesBundle(azureKeyVault.AzureKeyVaultName, azureKeyVault.SecretPrefix, request.Namespace))
+                .Switch(EmptyAction, errors.AddRange);
         }
-        if (errorList.Count > 0)
+        if (errors.Count > 0)
         {
-            return errorList;
+            return errors;
         }
-        return Result.Success;
+        return await secretWriter.ReplaceAsync(request.K8sSecretObjectName, request.Namespace, [], cancellationToken);
     }
 }

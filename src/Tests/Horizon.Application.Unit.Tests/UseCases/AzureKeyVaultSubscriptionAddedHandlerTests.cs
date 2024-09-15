@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ErrorOr;
@@ -39,7 +40,7 @@ public class AzureKeyVaultSubscriptionAddedHandlerTests
             .Returns(Result.Success)
             .Verifiable();
         _storeMock
-            .Setup(x => x.AddSubscription("AzureKeyVault2", new KubernetesBundle("K8sSecretObject2", "SecretPrefix2", "Namespace1")))
+            .Setup(x => x.AddSubscription("AzureKeyVault2", new KubernetesBundle("K8sSecretObject1", "SecretPrefix2", "Namespace1")))
             .Returns(Result.Success)
             .Verifiable();
 
@@ -54,20 +55,16 @@ public class AzureKeyVaultSubscriptionAddedHandlerTests
             .ReturnsAsync(secretList2)
             .Verifiable();
 
-        _secretWriterMock.Setup(x => x.ReplaceAsync("K8sSecretObject1", "Namespace1", secretList1, default))
-            .ReturnsAsync(Result.Success)
-            .Verifiable();
-
-        _secretWriterMock.Setup(x => x.ReplaceAsync("K8sSecretObject2", "Namespace1", secretList2, default))
+        _secretWriterMock.Setup(x => x.ReplaceAsync("K8sSecretObject1", "Namespace1", secretList1.Concat(secretList2), default))
             .ReturnsAsync(Result.Success)
             .Verifiable();
 
         var mappings = new List<AzureKeyVaultMapping>
         {
-            new ("AzureKeyVault1", "K8sSecretObject1", "SecretPrefix1"),
-            new ("AzureKeyVault2", "K8sSecretObject2", "SecretPrefix2")
+            new ("AzureKeyVault1", "SecretPrefix1"),
+            new ("AzureKeyVault2", "SecretPrefix2")
         };
-        var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, "Namespace1");
+        var request = new AzureKeyVaultSubscriptionAddedRequest(mappings, "K8sSecretObject1", "Namespace1");
 
         // Act
         var result = await _handler.HandleAsync(request, default);

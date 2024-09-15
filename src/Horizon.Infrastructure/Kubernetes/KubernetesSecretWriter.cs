@@ -22,6 +22,9 @@ public class KubernetesSecretWriter(
 
     public async Task<ErrorOr<Success>> ReplaceAsync(string kubernetesSecretObjectName, string @namespace, IEnumerable<SecretBundle> secrets, CancellationToken cancellationToken = default)
     {
+        var k8sSecrets = secrets
+                .DistinctBy(s => s.Name)
+                .ToDictionary(s => s.Name, s => Encoding.UTF8.GetBytes(s.Value));
         var secret = new V1Secret
         {
             Metadata = new V1ObjectMeta 
@@ -29,7 +32,7 @@ public class KubernetesSecretWriter(
                 Name = kubernetesSecretObjectName, 
                 NamespaceProperty = @namespace
             },
-            Data = secrets.ToDictionary(s => s.Name, s => Encoding.UTF8.GetBytes(s.Value)),
+            Data = k8sSecrets,
             Type = DefaultSecretType
         };
 

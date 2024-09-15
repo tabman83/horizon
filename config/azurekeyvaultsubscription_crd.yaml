@@ -27,6 +27,9 @@ spec:
             nullable: false
             type: object
             properties:
+              k8sSecretObjectName:
+                nullable: false
+                type: string
               vaults:
                 type: array
                 items:
@@ -36,9 +39,6 @@ spec:
                       nullable: false
                       type: string
                     secretPrefix:
-                      nullable: false
-                      type: string
-                    k8sSecretObjectName:
                       nullable: false
                       type: string
     served: true
