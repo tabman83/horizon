@@ -73,4 +73,31 @@ public class ConditionalAuthenticationMiddlewareTests
         // Assert
         nextMock.Verify(next => next(context), Times.Once);
     }
+
+    [Fact]
+    public async Task InvokeAsync_ProbeUrl_ShouldCallNext()
+    {
+        // Arrange
+        var configProvider = new AuthenticationConfigProvider();
+        var nextMock = new Mock<RequestDelegate>();
+        var httpRequestMock = new Mock<HttpRequest>();
+        httpRequestMock.SetupGet(x => x.Path)
+            .Returns(new PathString(ConditionalAuthenticationMiddleware.ProbeUrl));
+        var contextMock = new Mock<HttpContext>();
+        contextMock.SetupGet(x => x.Request)
+            .Returns(httpRequestMock.Object);
+        var middleware = new ConditionalAuthenticationMiddleware(nextMock.Object, configProvider);
+
+        var authServiceMock = new Mock<IAuthenticationService>();
+        authServiceMock.Setup(x => x.AuthenticateAsync(contextMock.Object, "Basic")).ReturnsAsync(AuthenticateResult.Success(new AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), "Basic")));
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<IAuthenticationService>(authServiceMock.Object);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        // Act
+        await middleware.InvokeAsync(contextMock.Object);
+
+        // Assert
+        nextMock.Verify(next => next(contextMock.Object), Times.Once);
+    }
 }

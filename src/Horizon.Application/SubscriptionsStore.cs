@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using ErrorOr;
 using Horizon.Application;
 
-namespace Horizon.Infrastructure;
+namespace Horizon.Application;
 
-public class SubscriptionsStore : ISubscriptionsStore
+public class SubscriptionsStore
 {
     private readonly ConcurrentDictionary<string, IEnumerable<KubernetesBundle>> store = new();
 

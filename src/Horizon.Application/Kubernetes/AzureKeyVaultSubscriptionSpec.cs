@@ -2,6 +2,6 @@
 
 namespace Horizon.Application.Kubernetes;
 
-public record AzureKeyVaultSubscriptionSpec(IEnumerable<AzureKeyVaultSubscription> Vaults);
+public record AzureKeyVaultSubscriptionSpec(string K8sSecretObjectName, IEnumerable<AzureKeyVaultSubscription> Vaults);
 
-public record AzureKeyVaultSubscription(string AzureKeyVaultName, string K8sSecretObjectName, string SecretPrefix);
+public record AzureKeyVaultSubscription(string AzureKeyVaultName, string SecretPrefix);

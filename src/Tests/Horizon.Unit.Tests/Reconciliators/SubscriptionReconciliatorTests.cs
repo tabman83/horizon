@@ -34,7 +34,7 @@ public class SubscriptionReconciliatorTests
                 Name = "TestSubscription",
                 NamespaceProperty = "TestNamespace"
             },
-            Spec = new AzureKeyVaultSubscriptionSpec([new AzureKeyVaultSubscription("TestVault", "TestSecret", "TestPrefix")])
+            Spec = new AzureKeyVaultSubscriptionSpec("TestSecret", [new AzureKeyVaultSubscription("TestVault", "TestPrefix")])
         };
 
         // Act
@@ -43,10 +43,10 @@ public class SubscriptionReconciliatorTests
         // Assert
         _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionAddedRequest, Success>(
             It.Is<AzureKeyVaultSubscriptionAddedRequest>(r =>
-                r.Mappings.Count() == 1 &&
-                r.Mappings.First().AzureKeyVaultName == "TestVault" &&
-                r.Mappings.First().K8sSecretObjectName == "TestSecret" &&
-                r.Mappings.First().SecretPrefix == "TestPrefix" &&
+                r.K8sSecretObjectName == "TestSecret" &&
+                r.AzureKeyVaults.Count() == 1 &&
+                r.AzureKeyVaults.First().AzureKeyVaultName == "TestVault" &&
+                r.AzureKeyVaults.First().SecretPrefix == "TestPrefix" &&
                 r.Namespace == "TestNamespace"
             ), default
         ), Times.Once);
@@ -66,7 +66,7 @@ public class SubscriptionReconciliatorTests
                 Name = "TestSubscription",
                 NamespaceProperty = "TestNamespace"
             },
-            Spec = new AzureKeyVaultSubscriptionSpec([new AzureKeyVaultSubscription("TestVault", "TestSecret", "TestPrefix")])
+            Spec = new AzureKeyVaultSubscriptionSpec("TestSecret", [new AzureKeyVaultSubscription("TestVault", "TestPrefix")])
         };
 
         // Act
@@ -75,10 +75,10 @@ public class SubscriptionReconciliatorTests
         // Assert
         _mediatorMock.Verify(m => m.SendAsync<AzureKeyVaultSubscriptionRemovedRequest, Success>(
             It.Is<AzureKeyVaultSubscriptionRemovedRequest>(r =>
-                r.Mappings.Count() == 1 &&
-                r.Mappings.First().AzureKeyVaultName == "TestVault" &&
-                r.Mappings.First().K8sSecretObjectName == "TestSecret" &&
-                r.Mappings.First().SecretPrefix == "TestPrefix" &&
+                r.K8sSecretObjectName == "TestSecret" &&
+                r.AzureKeyVaults.Count() == 1 &&
+                r.AzureKeyVaults.First().AzureKeyVaultName == "TestVault" &&
+                r.AzureKeyVaults.First().SecretPrefix == "TestPrefix" &&
                 r.Namespace == "TestNamespace"
             ), default
         ), Times.Once);
@@ -100,7 +100,7 @@ public class SubscriptionReconciliatorTests
                 Name = "TestSubscription",
                 NamespaceProperty = "TestNamespace"
             },
-            Spec = new AzureKeyVaultSubscriptionSpec([new AzureKeyVaultSubscription("TestVault", "TestSecret", "TestPrefix")])
+            Spec = new AzureKeyVaultSubscriptionSpec("TestSecret", [new AzureKeyVaultSubscription("TestVault", "TestPrefix")])
         };
 
         // Act

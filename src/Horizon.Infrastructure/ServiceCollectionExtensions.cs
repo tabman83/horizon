@@ -15,7 +15,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services)
     {
         services.AddKubernetes();
-        services.AddSingleton<ISubscriptionsStore, SubscriptionsStore>();
         services.AddSingleton<SecretClientFactory>();
         services.AddTransient<IKeyVaultSecretReader, KeyVaultSecretReader>();
         services.AddSingleton<TokenCredential, DefaultAzureCredential>();

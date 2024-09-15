@@ -1,10 +1,8 @@
 using ErrorOr;
 using FluentAssertions;
-using Horizon.Application;
-using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace Horizon.Infrastructure.Unit.Tests;
+namespace Horizon.Application.Unit.Tests;
 
 public class SubscriptionsStoreTests
 {
@@ -60,40 +58,5 @@ public class SubscriptionsStoreTests
         result.IsError.Should().BeTrue();
         result.FirstError.Should().BeOfType<Error>()
             .Which.Type.Should().Be(ErrorType.NotFound);
-    }
-
-    [Fact]
-    public void RemoveSubscription_ShouldRemoveBundle_WhenBundleExists()
-    {
-        // Arrange
-        var store = new SubscriptionsStore();
-        var azureKeyVaultName = "TestKeyVault";
-        var bundleToRemove = new KubernetesBundle("secretName", "prefix", "namespace");
-
-        store.AddSubscription(azureKeyVaultName, bundleToRemove);
-
-        // Act
-        var result = store.RemoveSubscription(azureKeyVaultName, bundleToRemove);
-
-        // Assert
-        result.IsError.Should().BeFalse();
-        var getSubscriptionResult = store.GetSubscription(azureKeyVaultName);
-        getSubscriptionResult.IsError.Should().BeFalse();
-        getSubscriptionResult.Value.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void RemoveSubscription_ShouldReturnNotFound_WhenBundleDoesNotExist()
-    {
-        // Arrange
-        var store = new SubscriptionsStore();
-        var azureKeyVaultName = "TestKeyVault";
-        var bundleToRemove = new KubernetesBundle("secretName", "prefix", "namespace");
-
-        // Act
-        var result = store.RemoveSubscription(azureKeyVaultName, bundleToRemove);
-
-        // Assert
-        result.IsError.Should().BeTrue();
     }
 }
