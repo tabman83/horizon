@@ -11,7 +11,7 @@ namespace Horizon.Application.UseCases;
 public sealed record AzureKeyVaultSubscriptionRemovedRequest(IEnumerable<AzureKeyVaultMapping> AzureKeyVaults, string K8sSecretObjectName, string Namespace) : IRequest<ErrorOr<Success>>;
 
 public class AzureKeyVaultSubscriptionRemovedHandler(
-    ISubscriptionsStore store,
+    SubscriptionsStore store,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSubscriptionRemovedRequest, Success>
 {
     internal static Action<Success> EmptyAction => _ => { };
@@ -22,7 +22,7 @@ public class AzureKeyVaultSubscriptionRemovedHandler(
         List<SecretBundle> secretBundles = [];
         foreach (var azureKeyVault in request.AzureKeyVaults)
         {
-            store.RemoveSubscription(request.K8sSecretObjectName, new KubernetesBundle(azureKeyVault.AzureKeyVaultName, azureKeyVault.SecretPrefix, request.Namespace))
+            store.RemoveSubscription(azureKeyVault.AzureKeyVaultName, new KubernetesBundle(request.K8sSecretObjectName, azureKeyVault.SecretPrefix, request.Namespace))
                 .Switch(EmptyAction, errors.AddRange);
         }
         if (errors.Count > 0)

@@ -12,16 +12,9 @@ namespace Horizon.Application.Unit.Tests.UseCases;
 
 public class AzureKeyVaultSecretNewVersionCreatedHandlerTests
 {
-    private readonly Mock<ISubscriptionsStore> _storeMock;
-    private readonly Mock<IKeyVaultSecretReader> _secretReaderMock;
-    private readonly Mock<IKubernetesSecretWriter> _secretWriterMock;
-
-    public AzureKeyVaultSecretNewVersionCreatedHandlerTests()
-    {
-        _storeMock = new Mock<ISubscriptionsStore>();
-        _secretReaderMock = new Mock<IKeyVaultSecretReader>();
-        _secretWriterMock = new Mock<IKubernetesSecretWriter>();
-    }
+    private readonly SubscriptionsStore _store = new();
+    private readonly Mock<IKeyVaultSecretReader> _secretReaderMock = new();
+    private readonly Mock<IKubernetesSecretWriter> _secretWriterMock = new();
 
     [Fact]
     public async Task HandleAsync_ShouldPatchSecretsForAllKubernetesBundles_WhenNewVersionCreated()
@@ -37,13 +30,13 @@ public class AzureKeyVaultSecretNewVersionCreatedHandlerTests
 
         _secretReaderMock.Setup(x => x.LoadSingleSecretAsync(request.VaultName, request.SecretName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(secretBundle);
-        _storeMock.Setup(x => x.GetSubscription(request.VaultName))
-            .Returns(kubernetesBundles);
+        _store.AddSubscription(request.VaultName, kubernetesBundles[0]);
+        _store.AddSubscription(request.VaultName, kubernetesBundles[1]);
         _secretWriterMock.Setup(x => x.PatchAsync(It.IsAny<string>(), It.IsAny<string>(), secretBundle, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success);
 
         var handler = new AzureKeyVaultSecretNewVersionCreatedHandler(
-            _storeMock.Object,
+            _store,
             _secretReaderMock.Object,
             _secretWriterMock.Object);
 

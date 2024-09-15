@@ -6,7 +6,6 @@ using FluentAssertions;
 using Horizon.Application.AzureKeyVault;
 using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -14,16 +13,17 @@ namespace Horizon.Application.Unit.Tests.UseCases;
 
 public class AzureKeyVaultSubscriptionRemovedHandlerTests
 {
-    private readonly Mock<ISubscriptionsStore> _storeMock;
-    private readonly Mock<IKubernetesSecretWriter> _secretWriterMock;
+    private readonly SubscriptionsStore _store = new ();
+    private readonly Mock<IKubernetesSecretWriter> _secretWriterMock = new();
     private readonly AzureKeyVaultSubscriptionRemovedHandler _handler;
 
     public AzureKeyVaultSubscriptionRemovedHandlerTests()
     {
-        _storeMock = new Mock<ISubscriptionsStore>();
-        _secretWriterMock = new Mock<IKubernetesSecretWriter>();
+        _store.AddSubscription("AzureKeyVault1", new KubernetesBundle("K8sSecretObject1", "SecretPrefix1", "Namespace1"));
+        _store.AddSubscription("AzureKeyVault2", new KubernetesBundle("K8sSecretObject1", "SecretPrefix2", "Namespace1"));
+
         _handler = new AzureKeyVaultSubscriptionRemovedHandler(
-            _storeMock.Object,
+            _store,
             _secretWriterMock.Object);
     }
 
@@ -31,16 +31,6 @@ public class AzureKeyVaultSubscriptionRemovedHandlerTests
     public async Task HandleAsync_ShouldHandleAzureKeyVaultSubscriptionRemovedRequest()
     {
         // Arrange
-
-        _storeMock
-            .Setup(x => x.RemoveSubscription("AzureKeyVault1", new KubernetesBundle("K8sSecretObject1", "SecretPrefix1", "Namespace1")))
-            .Returns(Result.Success)
-            .Verifiable();
-        _storeMock
-            .Setup(x => x.RemoveSubscription("AzureKeyVault2", new KubernetesBundle("K8sSecretObject1", "SecretPrefix2", "Namespace1")))
-            .Returns(Result.Success)
-            .Verifiable();
-
         var secretList1 = new List<SecretBundle>([new SecretBundle("SecretName1", "SecretValue1")]);
         var secretList2 = new List<SecretBundle>([new SecretBundle("SecretName2", "SecretValue2")]);
 
@@ -60,7 +50,6 @@ public class AzureKeyVaultSubscriptionRemovedHandlerTests
 
         // Assert
         result.IsError.Should().BeFalse();
-        _storeMock.Verify();
         _secretWriterMock.Verify();
     }
 }

@@ -1,10 +1,8 @@
 using ErrorOr;
 using FluentAssertions;
-using Horizon.Application;
-using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace Horizon.Infrastructure.Unit.Tests;
+namespace Horizon.Application.Unit.Tests;
 
 public class SubscriptionsStoreTests
 {

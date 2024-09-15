@@ -11,7 +11,7 @@ namespace Horizon.Application.UseCases;
 public sealed record AzureKeyVaultSecretNewVersionCreatedRequest(string VaultName, string SecretName) : IRequest<ErrorOr<Success>>;
 
 public class AzureKeyVaultSecretNewVersionCreatedHandler(
-    ISubscriptionsStore store,
+    SubscriptionsStore store,
     IKeyVaultSecretReader secretReader,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, Success>
 {

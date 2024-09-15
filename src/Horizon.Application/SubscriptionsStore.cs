@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using ErrorOr;
 using Horizon.Application;
 
-namespace Horizon.Infrastructure;
+namespace Horizon.Application;
 
 public class SubscriptionsStore
 {
