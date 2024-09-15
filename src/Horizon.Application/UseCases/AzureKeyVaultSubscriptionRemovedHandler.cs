@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ErrorOr;
-using Horizon.Application.AzureKeyVault;
 using Horizon.Application.Kubernetes;
 
 namespace Horizon.Application.UseCases;
@@ -19,7 +18,6 @@ public class AzureKeyVaultSubscriptionRemovedHandler(
     public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSubscriptionRemovedRequest request, CancellationToken cancellationToken = default)
     {
         List<Error> errors = [];
-        List<SecretBundle> secretBundles = [];
         foreach (var azureKeyVault in request.AzureKeyVaults)
         {
             store.RemoveSubscription(azureKeyVault.AzureKeyVaultName, new KubernetesBundle(request.K8sSecretObjectName, azureKeyVault.SecretPrefix, request.Namespace))
