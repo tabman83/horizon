@@ -5,6 +5,8 @@ using Horizon.Application.AzureKeyVault;
 using Horizon.Application.Kubernetes;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using Horizon.Application.Logging;
 
 namespace Horizon.Application.UseCases;
 
@@ -12,14 +14,31 @@ public sealed record AzureKeyVaultSecretNewVersionCreatedRequest(string VaultNam
 
 public class AzureKeyVaultSecretNewVersionCreatedHandler(
     SubscriptionsStore store,
+    ILogger<AzureKeyVaultSecretNewVersionCreatedHandler> logger,
     IKeyVaultSecretReader secretReader,
     IKubernetesSecretWriter secretWriter) : IAsyncRequestHandler<AzureKeyVaultSecretNewVersionCreatedRequest, Success>
 {
     public async Task<ErrorOr<Success>> HandleAsync(AzureKeyVaultSecretNewVersionCreatedRequest request, CancellationToken cancellationToken = default)
     {
-        return await secretReader.LoadSingleSecretAsync(request.VaultName, request.SecretName, cancellationToken)
-            .Then(secret => GetSubscription(secret, request.VaultName))
-            .ThenAsync(bundle => PatchSecretsAsync(bundle.KubernetesBundles, bundle.SecretBundle, cancellationToken));
+        using (logger
+            .With("KeyVaultName", request.VaultName)
+            .With("SecretName", request.SecretName).BeginScope())
+        {
+            return await secretReader.LoadSingleSecretAsync(request.VaultName, request.SecretName, cancellationToken)
+                .Then(secret => GetSubscription(secret, request.VaultName))
+                .MatchFirstAsync(bundle => PatchSecretsAsync(bundle, cancellationToken), SkipNotFoundAsync);
+        }
+    }
+
+    private async Task<ErrorOr<Success>> SkipNotFoundAsync(Error error)
+    {
+        await Task.Yield();
+        if (error.Type is ErrorType.NotFound)
+        {
+            logger.LogInformation("NoAzureKeyVaultSubscriptionConfigForKeyVault");
+            return Result.Success;
+        }
+        return error;
     }
 
     private ErrorOr<Bundle> GetSubscription(SecretBundle secretBundle, string vaultName)
@@ -28,12 +47,17 @@ public class AzureKeyVaultSecretNewVersionCreatedHandler(
             .Then(subscriptions => new Bundle(secretBundle, subscriptions));
     }
 
-    private async Task<ErrorOr<Success>> PatchSecretsAsync(IEnumerable<KubernetesBundle> kubernetesBundles, SecretBundle secretBundle, CancellationToken cancellationToken = default)
+    private async Task<ErrorOr<Success>> PatchSecretsAsync(Bundle bundle, CancellationToken cancellationToken = default)
     {
         List<Task<ErrorOr<Success>>> tasks = [];
-        foreach (var kubernetesBundle in kubernetesBundles)
+        foreach (var kubernetesBundle in bundle.KubernetesBundles)
         {
-            tasks.Add(secretWriter.PatchAsync(kubernetesBundle.KubernetesSecretName, kubernetesBundle.Namespace, secretBundle, cancellationToken));
+            var task = secretWriter.PatchAsync(
+                kubernetesBundle.KubernetesSecretName,
+                kubernetesBundle.Namespace,
+                bundle.SecretBundle,
+                cancellationToken);
+            tasks.Add(task);
         }
         var results = await Task.WhenAll(tasks);
         var withErrors = results.Where(x => x.IsError);

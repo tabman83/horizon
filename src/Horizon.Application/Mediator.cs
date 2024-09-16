@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ErrorOr;
+using Horizon.Application.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +19,7 @@ public class Mediator(
         where TRequest : IRequest<ErrorOr<TResponse>>
         where TResponse : notnull, new()
     {
-        using (logger.BeginScope(new Dictionary<string, object> { ["RequestName"] = request.GetType().Name }))
+        using (logger.With("RequestName", request.GetType().Name).BeginScope())
         {
             try
             {
