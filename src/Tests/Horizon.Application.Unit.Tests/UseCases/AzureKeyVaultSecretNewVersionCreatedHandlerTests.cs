@@ -5,6 +5,7 @@ using ErrorOr;
 using Horizon.Application.AzureKeyVault;
 using Horizon.Application.Kubernetes;
 using Horizon.Application.UseCases;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -15,6 +16,7 @@ public class AzureKeyVaultSecretNewVersionCreatedHandlerTests
     private readonly SubscriptionsStore _store = new();
     private readonly Mock<IKeyVaultSecretReader> _secretReaderMock = new();
     private readonly Mock<IKubernetesSecretWriter> _secretWriterMock = new();
+    private readonly Mock<ILogger<AzureKeyVaultSecretNewVersionCreatedHandler>> _loggerMock = new();
 
     [Fact]
     public async Task HandleAsync_ShouldPatchSecretsForAllKubernetesBundles_WhenNewVersionCreated()
@@ -37,6 +39,7 @@ public class AzureKeyVaultSecretNewVersionCreatedHandlerTests
 
         var handler = new AzureKeyVaultSecretNewVersionCreatedHandler(
             _store,
+            _loggerMock.Object,
             _secretReaderMock.Object,
             _secretWriterMock.Object);
 
