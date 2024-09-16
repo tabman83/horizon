@@ -35,7 +35,7 @@ public class AzureKeyVaultSecretNewVersionCreatedHandler(
         await Task.Yield();
         if (error.Type is ErrorType.NotFound)
         {
-            logger.LogInformation("NoAzureKeyVaultSubscriptionConfigForKeyVault.");
+            logger.LogInformation("NoAzureKeyVaultSubscriptionConfigForKeyVault");
             return Result.Success;
         }
         return error;
